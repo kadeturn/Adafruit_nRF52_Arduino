@@ -89,32 +89,32 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
-// /*
- // * QSPI interface for external flash
- // */
-// #define PIN_QSPI_SCK         8
-// #define PIN_QSPI_CS          2
-// #define PIN_QSPI_DATA0       10
-// #define PIN_QSPI_DATA1       4
-// #define PIN_QSPI_DATA2       3
-// #define PIN_QSPI_DATA3       7
+/*
+ * QSPI interface for external flash
+ */
+#define PIN_QSPI_SCK         8
+#define PIN_QSPI_CS          2
+#define PIN_QSPI_DATA0       10
+#define PIN_QSPI_DATA1       4
+#define PIN_QSPI_DATA2       3
+#define PIN_QSPI_DATA3       7
 
-// /*
-  // 19,  // D8 is QSPI CLK on P0.19
-  // 20,  // D2 is QSPI CS on P0.20
-  // 17,  // D10 is QSPI Data 0 on P0.17
-  // 22,  // D4 is QSPI Data 1 on P0.22
-  // 23,  // D3 is QSPI Data 2 on P0.23
-  // 21,  // D7 is QSPI Data 3 on P0.21
-// */
+/*
+  19,  // D8 is QSPI CLK on P0.19
+  20,  // D2 is QSPI CS on P0.20
+  17,  // D10 is QSPI Data 0 on P0.17
+  22,  // D4 is QSPI Data 1 on P0.22
+  23,  // D3 is QSPI Data 2 on P0.23
+  21,  // D7 is QSPI Data 3 on P0.21
+*/
 
 
 // On-board QSPI Flash
 // If EXTERNAL_FLASH_DEVICES is not defined, all supported devices will be used
-// #define EXTERNAL_FLASH_DEVICES   GD25Q16C
+#define EXTERNAL_FLASH_DEVICES   GD25Q16C
 
-// #define USB_MSC_BLOCK_SIZE    512
-// #define USB_MSC_BLOCK_COUNT   ((2*1024*1024) / USB_MSC_BLOCK_SIZE)
+#define USB_MSC_BLOCK_SIZE    512
+#define USB_MSC_BLOCK_COUNT   ((2*1024*1024) / USB_MSC_BLOCK_SIZE)
 
 #ifdef __cplusplus
 }
