@@ -137,41 +137,13 @@ uint8_t const hid_report_descriptor[] =
         HID_REPORT_SIZE  ( 8                                      ),
         HID_INPUT        ( HID_DATA | HID_VARIABLE | HID_RELATIVE ), /* relative values */
  
-	  HID_COLLECTION ( HID_COLLECTION_LOGICAL ),
-		HID_REPORT_ID( 0x02 ), 
-		HID_USAGE       ( HID_USAGE_DESKTOP_RESOLUTION_MULTIPLIER),
-        HID_REPORT_COUNT( 1                                      ),
-        HID_REPORT_SIZE ( 2                                      ),		
-        HID_LOGICAL_MIN ( 0x00                                   ),
-        HID_LOGICAL_MAX ( 0x01                                   ),
-		HID_PHYSICAL_MIN( 0x01									 ),
-		HID_PHYSICAL_MAX( 0x120									 ),
-        HID_FEATURE     ( HID_DATA | HID_VARIABLE | HID_ABSOLUTE ),	
-		HID_REPORT_ID( REPORT_ID_MOUSE ), 
         HID_USAGE       ( HID_USAGE_DESKTOP_WHEEL                ), /* mouse scroll */
         HID_LOGICAL_MIN ( 0x81                                   ), /* -127 */
         HID_LOGICAL_MAX ( 0x7f                                   ), /* 127  */
         HID_REPORT_COUNT( 1                                      ),
         HID_REPORT_SIZE ( 8                                      ), /* 8-bit value */
         HID_INPUT       ( HID_DATA | HID_VARIABLE | HID_RELATIVE ), /* relative values */
-	  HID_COLLECTION_END,
 
-	  HID_COLLECTION ( HID_COLLECTION_LOGICAL ),
-	  HID_REPORT_ID( 0x02 ), 
-	  HID_USAGE       ( HID_USAGE_DESKTOP_RESOLUTION_MULTIPLIER),
-	    HID_REPORT_COUNT( 1                                      ),
-		HID_REPORT_SIZE ( 2                                      ),
-        HID_LOGICAL_MIN ( 0x00                                   ),
-        HID_LOGICAL_MAX ( 0x01                                   ),
-		HID_PHYSICAL_MIN( 0x01									 ),
-		HID_PHYSICAL_MAX( 0x120									 ),	
-        HID_FEATURE     ( HID_DATA | HID_VARIABLE | HID_ABSOLUTE ),
-		HID_PHYSICAL_MIN( 0x00									 ),
-		HID_PHYSICAL_MAX( 0x00									 ),
-		HID_REPORT_COUNT( 1                                      ),
-		HID_REPORT_SIZE ( 4                                      ),
-        HID_FEATURE     ( HID_DATA | HID_CONSTANT | HID_ABSOLUTE ),
-	  HID_REPORT_ID( REPORT_ID_MOUSE ), 
       HID_USAGE_PAGE  ( HID_USAGE_PAGE_CONSUMER ),
         HID_USAGE_N     ( HID_USAGE_CONSUMER_AC_PAN, 2           ), /* Horizontal wheel scroll */
         HID_LOGICAL_MIN ( 0x81                                   ), /* -127 */
@@ -179,7 +151,6 @@ uint8_t const hid_report_descriptor[] =
         HID_REPORT_COUNT( 1                                      ),
         HID_REPORT_SIZE ( 8                                      ), /* 8-bit value */
         HID_INPUT       ( HID_DATA | HID_VARIABLE | HID_RELATIVE ), /* relative values */
-	  HID_COLLECTION_END,
     HID_COLLECTION_END,
   HID_COLLECTION_END,
 

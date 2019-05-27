@@ -96,15 +96,14 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
-/*
- * QSPI interface for external flash
- */
-#define PIN_QSPI_SCK         8
-#define PIN_QSPI_CS          2
-#define PIN_QSPI_DATA0       10
-#define PIN_QSPI_DATA1       4
-#define PIN_QSPI_DATA2       3
-#define PIN_QSPI_DATA3       7
+// QSPI Pins
+#define PIN_QSPI_SCK         27
+#define PIN_QSPI_CS          28
+#define PIN_QSPI_IO0         29
+#define PIN_QSPI_IO1         30
+#define PIN_QSPI_IO2         31
+#define PIN_QSPI_IO3         32
+
 
 /*
   19,  // D8 is QSPI CLK on P0.19
