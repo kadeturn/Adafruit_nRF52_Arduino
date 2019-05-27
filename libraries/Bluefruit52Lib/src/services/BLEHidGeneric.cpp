@@ -98,6 +98,7 @@ void BLEHidGeneric::enableMouse(bool enable)
   _has_mouse    = enable;
 }
 
+
 void BLEHidGeneric::setHidInfo(uint16_t bcd, uint8_t country, uint8_t flags)
 {
   memcpy(_hid_info, &bcd, 2);
