@@ -69,12 +69,13 @@ static const uint8_t A3  = PIN_A3 ;
  */
 #define SPI_INTERFACES_COUNT 1
 
+// Used for haptic encoder SPI
 #define PIN_SPI_SS		    (10) // P0.17
 #define PIN_SPI_MISO         (11) // P0.15
 #define PIN_SPI_MOSI         (12) // P0.13
 #define PIN_SPI_SCK          (13) // P0.14
 
-
+//  Used for Cirque touch SPI
 // #define PIN_SPI_SS			 (5)
 // #define PIN_SPI_MISO         (6)
 // #define PIN_SPI_MOSI         (7)
