@@ -81,10 +81,10 @@ static const uint8_t A3  = PIN_A3 ;
 // #define PIN_SPI_MOSI         (7)
 // #define PIN_SPI_SCK          (8)
 
-static const uint8_t SS   = PIN_SPI_SS ;
-static const uint8_t MOSI = PIN_SPI_MOSI ;
-static const uint8_t MISO = PIN_SPI_MISO ;
-static const uint8_t SCK  = PIN_SPI_SCK ;
+ // static const uint8_t SS   = PIN_SPI_SS ;
+ // static const uint8_t MOSI = PIN_SPI_MOSI ;
+ // static const uint8_t MISO = PIN_SPI_MISO ;
+ // static const uint8_t SCK  = PIN_SPI_SCK ;
 
 /*
  * Wire Interfaces
@@ -94,8 +94,8 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PIN_WIRE_SDA         (16) // P0.12
 #define PIN_WIRE_SCL         (15) // P0.11
 
-static const uint8_t SDA = PIN_WIRE_SDA;
-static const uint8_t SCL = PIN_WIRE_SCL;
+// static const uint8_t SDA = PIN_WIRE_SDA;
+// static const uint8_t SCL = PIN_WIRE_SCL;
 
 // QSPI Pins
 #define PIN_QSPI_SCK         27
