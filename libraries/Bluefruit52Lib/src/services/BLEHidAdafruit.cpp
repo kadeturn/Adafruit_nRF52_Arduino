@@ -137,20 +137,55 @@ uint8_t const hid_report_descriptor[] =
         HID_REPORT_SIZE  ( 8                                      ),
         HID_INPUT        ( HID_DATA | HID_VARIABLE | HID_RELATIVE ), /* relative values */
  
-        HID_USAGE       ( HID_USAGE_DESKTOP_WHEEL                ), /* mouse scroll */
-        HID_LOGICAL_MIN ( 0x81                                   ), /* -127 */
-        HID_LOGICAL_MAX ( 0x7f                                   ), /* 127  */
+	  HID_COLLECTION ( HID_COLLECTION_LOGICAL ),
+		HID_REPORT_ID   ( 0x18 ), 
+		HID_USAGE       ( HID_USAGE_DESKTOP_RESOLUTION_MULTIPLIER),
         HID_REPORT_COUNT( 1                                      ),
-        HID_REPORT_SIZE ( 8                                      ), /* 8-bit value */
+        HID_REPORT_SIZE ( 2                                      ),		
+        HID_LOGICAL_MIN ( 0x00                                   ),
+        HID_LOGICAL_MAX ( 0x01                                   ),
+		HID_PHYSICAL_MIN( 0x01									 ),
+		HID_PHYSICAL_MAX( 0x78									 ),
+        HID_FEATURE     ( HID_DATA | HID_VARIABLE | HID_ABSOLUTE ),
+		
+		HID_REPORT_ID( REPORT_ID_MOUSE ), 
+        HID_USAGE       ( HID_USAGE_DESKTOP_WHEEL                ), /* mouse scroll */
+		HID_PHYSICAL_MIN( 0x00									 ),
+		HID_PHYSICAL_MAX( 0x00									 ),
+        HID_LOGICAL_MIN ( 0x8002                                 ), /* -32766 */
+        HID_LOGICAL_MAX ( 0x7FFE                                 ), /* 32767  */
+        HID_REPORT_COUNT( 1                                      ),
+        HID_REPORT_SIZE ( 16                                     ), /* 16-bit value */
         HID_INPUT       ( HID_DATA | HID_VARIABLE | HID_RELATIVE ), /* relative values */
-
+	  HID_COLLECTION_END,
+	  	  
+	  
+	  HID_COLLECTION ( HID_COLLECTION_LOGICAL ),
+		HID_REPORT_ID   ( 0x18 ), 
+		HID_USAGE       ( HID_USAGE_DESKTOP_RESOLUTION_MULTIPLIER),
+        HID_REPORT_COUNT( 1                                      ),
+        HID_REPORT_SIZE ( 2                                      ),		
+        HID_LOGICAL_MIN ( 0x00                                   ),
+        HID_LOGICAL_MAX ( 0x01                                   ),
+		HID_PHYSICAL_MIN( 0x01									 ),
+		HID_PHYSICAL_MAX( 0x78									 ),
+        HID_FEATURE     ( HID_DATA | HID_VARIABLE | HID_ABSOLUTE ),
+		HID_PHYSICAL_MIN( 0x00									 ),
+		HID_PHYSICAL_MAX( 0x00									 ),		
+		HID_REPORT_COUNT( 1                                      ),
+        HID_REPORT_SIZE ( 4                                      ),
+        HID_INPUT       ( HID_CONSTANT                           ),	  
+		
       HID_USAGE_PAGE  ( HID_USAGE_PAGE_CONSUMER ),
+		HID_REPORT_ID( REPORT_ID_MOUSE ), 
         HID_USAGE_N     ( HID_USAGE_CONSUMER_AC_PAN, 2           ), /* Horizontal wheel scroll */
         HID_LOGICAL_MIN ( 0x81                                   ), /* -127 */
         HID_LOGICAL_MAX ( 0x7f                                   ), /* 127  */
         HID_REPORT_COUNT( 1                                      ),
         HID_REPORT_SIZE ( 8                                      ), /* 8-bit value */
         HID_INPUT       ( HID_DATA | HID_VARIABLE | HID_RELATIVE ), /* relative values */
+	  HID_COLLECTION_END,
+	  
     HID_COLLECTION_END,
   HID_COLLECTION_END,
 
@@ -339,7 +374,7 @@ bool BLEHidAdafruit::mouseReport(uint16_t conn_hdl, hid_mouse_report_t* report)
   }
 }
 
-bool BLEHidAdafruit::mouseReport(uint16_t conn_hdl, uint8_t buttons, int8_t x, int8_t y, int8_t wheel, int8_t pan)
+bool BLEHidAdafruit::mouseReport(uint16_t conn_hdl, uint8_t buttons, int8_t x, int8_t y, int16_t wheel, int8_t pan)
 {
   hid_mouse_report_t report =
   {
@@ -347,7 +382,7 @@ bool BLEHidAdafruit::mouseReport(uint16_t conn_hdl, uint8_t buttons, int8_t x, i
       .x       = x,
       .y       = y,
       .wheel   = wheel,
-      //.pan     = pan
+      .pan     = pan
   };
 
   _mse_buttons = buttons;
@@ -371,8 +406,10 @@ bool BLEHidAdafruit::mouseMove(uint16_t conn_hdl, int8_t x, int8_t y)
   return mouseReport(conn_hdl, _mse_buttons, x, y, 0, 0);
 }
 
-bool BLEHidAdafruit::mouseScroll(uint16_t conn_hdl, int8_t scroll)
+bool BLEHidAdafruit::mouseScroll(uint16_t conn_hdl, int16_t scroll)
 {
+  uint8_t res_report = 0x01;
+  inputReport(conn_hdl, 0x18, &res_report, 2);
   return mouseReport(conn_hdl, _mse_buttons, 0, 0, scroll, 0);
 }
 
@@ -433,7 +470,7 @@ bool BLEHidAdafruit::mouseReport(hid_mouse_report_t* report)
   return mouseReport(BLE_CONN_HANDLE_INVALID, report);
 }
 
-bool BLEHidAdafruit::mouseReport(uint8_t buttons, int8_t x, int8_t y, int8_t wheel, int8_t pan)
+bool BLEHidAdafruit::mouseReport(uint8_t buttons, int8_t x, int8_t y, int16_t wheel, int8_t pan)
 {
   return mouseReport(BLE_CONN_HANDLE_INVALID, buttons, x, y, wheel, pan);
 }
@@ -453,7 +490,7 @@ bool BLEHidAdafruit::mouseMove(int8_t x, int8_t y)
   return mouseMove(BLE_CONN_HANDLE_INVALID, x, y);
 }
 
-bool BLEHidAdafruit::mouseScroll(int8_t scroll)
+bool BLEHidAdafruit::mouseScroll(int16_t scroll)
 {
   return mouseScroll(BLE_CONN_HANDLE_INVALID, scroll);
 }

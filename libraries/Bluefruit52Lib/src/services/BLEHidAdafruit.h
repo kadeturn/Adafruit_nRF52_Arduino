@@ -86,24 +86,24 @@ class BLEHidAdafruit : public BLEHidGeneric
     //------------- Mouse -------------//
     // Single connection
     bool mouseReport(hid_mouse_report_t* report);
-    bool mouseReport(uint8_t buttons, int8_t x, int8_t y, int8_t wheel=0, int8_t pan=0);
+    bool mouseReport(uint8_t buttons, int8_t x, int8_t y, int16_t wheel=0, int8_t pan=0);
 
     bool mouseButtonPress(uint8_t buttons);
     bool mouseButtonRelease(void);
 
     bool mouseMove(int8_t x, int8_t y);
-    bool mouseScroll(int8_t scroll);
+    bool mouseScroll(int16_t scroll);
     bool mousePan(int8_t pan);
 
     // Multiple connections
     bool mouseReport(uint16_t conn_hdl, hid_mouse_report_t* report);
-    bool mouseReport(uint16_t conn_hdl, uint8_t buttons, int8_t x, int8_t y, int8_t wheel=0, int8_t pan=0);
+    bool mouseReport(uint16_t conn_hdl, uint8_t buttons, int8_t x, int8_t y, int16_t wheel=0, int8_t pan=0);
 
     bool mouseButtonPress(uint16_t conn_hdl, uint8_t buttons);
     bool mouseButtonRelease(uint16_t conn_hdl);
 
     bool mouseMove(uint16_t conn_hdl, int8_t x, int8_t y);
-    bool mouseScroll(uint16_t conn_hdl, int8_t scroll);
+    bool mouseScroll(uint16_t conn_hdl, int16_t scroll);
     bool mousePan(uint16_t conn_hdl, int8_t pan);
 
   protected:
