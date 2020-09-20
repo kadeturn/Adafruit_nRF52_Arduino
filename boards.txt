@@ -573,60 +573,59 @@ mdbt50qrx.menu.debug.l3.build.sysview_flags=-DCFG_SYSVIEW=1
 
 
 #**********************************************
-# Haptic Encoder nRF52840 Board
+# Encoder Dev nRF52840 Board
 #**********************************************
-hapticencoder52840.name=3Dx Haptic Encoder nRF52840
-hapticencoder52840.bootloader.tool=bootburn
+encoderdev52840.name=Encoder Dev nRF52840
+encoderdev52840.bootloader.tool=bootburn
 
 # VID/PID for bootloader with/without UF2, Arduino + Circuitpython App
-hapticencoder52840.vid.0=0x239A
-hapticencoder52840.pid.0=0x8029
-hapticencoder52840.vid.1=0x239A
-hapticencoder52840.pid.1=0x0029
-hapticencoder52840.vid.2=0x239A
-hapticencoder52840.pid.2=0x002A
-hapticencoder52840.vid.3=0x239A
-hapticencoder52840.pid.3=0x802A
+encoderdev52840.vid.0=0x239A
+encoderdev52840.pid.0=0x8029
+encoderdev52840.vid.1=0x239A
+encoderdev52840.pid.1=0x0029
+encoderdev52840.vid.2=0x239A
+encoderdev52840.pid.2=0x002A
+encoderdev52840.vid.3=0x239A
+encoderdev52840.pid.3=0x802A
 
 # Upload
-#Probably don't want this enabled, we will see
-#hapticencoder52840.bootloader.tool=bootburn
-hapticencoder52840.upload.tool=nrfutil
-hapticencoder52840.upload.protocol=nrfutil
-hapticencoder52840.upload.use_1200bps_touch=true
-hapticencoder52840.upload.wait_for_upload_port=true
-hapticencoder52840.upload.maximum_size=815104
-hapticencoder52840.upload.maximum_data_size=237568
+encoderdev52840.bootloader.tool=bootburn
+encoderdev52840.upload.tool=nrfutil
+encoderdev52840.upload.protocol=nrfutil
+encoderdev52840.upload.use_1200bps_touch=true
+encoderdev52840.upload.wait_for_upload_port=true
+encoderdev52840.upload.maximum_size=815104
+encoderdev52840.upload.maximum_data_size=237568
 
 # Build
-hapticencoder52840.build.mcu=cortex-m4
-hapticencoder52840.build.f_cpu=64000000
-hapticencoder52840.build.board=NRF52840_HAPTIC
-hapticencoder52840.build.core=nRF5
-hapticencoder52840.build.variant=haptic_encoder_nrf52840
-hapticencoder52840.build.usb_manufacturer="KadeT"
-hapticencoder52840.build.usb_product="Haptic Encoder Dev"
-hapticencoder52840.build.extra_flags=-DNRF52840_XXAA {build.flags.usb}
-hapticencoder52840.build.ldscript=nrf52840_s140_v6.ld
-hapticencoder52840.build.vid=0x239A
-hapticencoder52840.build.pid=0x8029
+encoderdev52840.build.mcu=cortex-m4
+encoderdev52840.build.f_cpu=64000000
+encoderdev52840.build.board=NRF52840_ENCODER
+encoderdev52840.build.core=nRF5
+encoderdev52840.build.variant=encoder_dev_nrf52840
+encoderdev52840.build.usb_manufacturer="kadeturn"
+encoderdev52840.build.usb_product="Encoder Dev"
+encoderdev52840.build.extra_flags=-DNRF52840_XXAA {build.flags.usb}
+encoderdev52840.build.ldscript=nrf52840_s140_v6.ld
+encoderdev52840.build.vid=0x239A
+encoderdev52840.build.pid=0x8029
 
 # SofDevice Menu
-hapticencoder52840.menu.softdevice.s140v6=0.3.2 SoftDevice s140 6.1.1
-hapticencoder52840.menu.softdevice.s140v6.build.sd_name=s140
-hapticencoder52840.menu.softdevice.s140v6.build.sd_version=6.1.1
-hapticencoder52840.menu.softdevice.s140v6.build.sd_fwid=0x00B6
-hapticencoder52840.menu.softdevice.s140v6.build.ldscript=nrf52840_s140_v6.ld
-hapticencoder52840.menu.softdevice.s140v6.upload.maximum_size=815104
-hapticencoder52840.menu.softdevice.s140v6.upload.maximum_data_size=248832
+encoderdev52840.menu.softdevice.s140v6=0.3.2 SoftDevice s140 6.1.1
+encoderdev52840.menu.softdevice.s140v6.build.sd_name=s140
+encoderdev52840.menu.softdevice.s140v6.build.sd_version=6.1.1
+encoderdev52840.menu.softdevice.s140v6.build.sd_fwid=0x00B6
+encoderdev52840.menu.softdevice.s140v6.build.ldscript=nrf52840_s140_v6.ld
+encoderdev52840.menu.softdevice.s140v6.upload.maximum_size=815104
+encoderdev52840.menu.softdevice.s140v6.upload.maximum_data_size=248832
 
 # Debug Menu
-hapticencoder52840.menu.debug.l0=Level 0 (Release)
-hapticencoder52840.menu.debug.l0.build.debug_flags=-DCFG_DEBUG=0
-hapticencoder52840.menu.debug.l1=Level 1 (Error Message)
-hapticencoder52840.menu.debug.l1.build.debug_flags=-DCFG_DEBUG=1
-hapticencoder52840.menu.debug.l2=Level 2 (Full Debug)
-hapticencoder52840.menu.debug.l2.build.debug_flags=-DCFG_DEBUG=2
-hapticencoder52840.menu.debug.l3=Level 3 (Segger SystemView)
-hapticencoder52840.menu.debug.l3.build.debug_flags=-DCFG_DEBUG=3
-hapticencoder52840.menu.debug.l3.build.sysview_flags=-DCFG_SYSVIEW=1
+encoderdev52840.menu.debug.l0=Level 0 (Release)
+encoderdev52840.menu.debug.l0.build.debug_flags=-DCFG_DEBUG=0
+encoderdev52840.menu.debug.l1=Level 1 (Error Message)
+encoderdev52840.menu.debug.l1.build.debug_flags=-DCFG_DEBUG=1
+encoderdev52840.menu.debug.l2=Level 2 (Full Debug)
+encoderdev52840.menu.debug.l2.build.debug_flags=-DCFG_DEBUG=2
+encoderdev52840.menu.debug.l3=Level 3 (Segger SystemView)
+encoderdev52840.menu.debug.l3.build.debug_flags=-DCFG_DEBUG=3
+encoderdev52840.menu.debug.l3.build.sysview_flags=-DCFG_SYSVIEW=1

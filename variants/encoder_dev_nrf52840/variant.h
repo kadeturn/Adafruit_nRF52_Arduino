@@ -16,8 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _VARIANT_HAPTIC_ENCODER_NRF52840_
-#define _VARIANT_HAPTIC_ENCODER_NRF52840_
+#ifndef _VARIANT_ENCODER_DEV_NRF52840_
+#define _VARIANT_ENCODER_DEV_NRF52840_
 
 /** Master clock frequency */
 #define VARIANT_MCK       (64000000ul)
@@ -87,7 +87,7 @@ static const uint8_t A3  = PIN_A3 ;
  */
 #define SPI_INTERFACES_COUNT 1
 
-// Used for haptic encoder SPI
+// Used for encoder SPI
 #define PIN_SPI_SS		     (10)
 #define PIN_SPI_MISO         (11)
 #define PIN_SPI_MOSI         (12)
