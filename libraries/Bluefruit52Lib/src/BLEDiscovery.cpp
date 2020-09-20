@@ -84,7 +84,7 @@ bool BLEDiscovery::_discoverService(uint16_t conn_handle, BLEClientService& svc,
   // timeout or has no data (due to GATT Error)
   if ( bytecount <= 0 )
   {
-    LOG_LV1("DISC", "[SVC] timeout or error", start_handle);
+    LOG_LV1("DISC", "[SVC] timeout or error %ud", start_handle);
     return false;
   }
 
@@ -107,9 +107,10 @@ bool BLEDiscovery::_discoverService(uint16_t conn_handle, BLEClientService& svc,
 uint8_t BLEDiscovery::discoverCharacteristic(uint16_t conn_handle, BLEClientCharacteristic* chr[], uint8_t count)
 {
   // We could found more characteristic than we looking for. Buffer must be large enough
-  enum { MAX_DISC_CHARS = 4 };
+  enum { MAX_DISC_CHARS = 8 };
 
-  uint16_t bufsize = sizeof(ble_gattc_evt_char_disc_rsp_t) + (MAX_DISC_CHARS-1)*sizeof(ble_gattc_char_t);
+  // -1 because the first ble_gattc_char_t is built in to ble_gattc_evt_char_disc_rsp_t
+  uint16_t bufsize = sizeof(ble_gattc_evt_char_disc_rsp_t) + (MAX_DISC_CHARS-1)*sizeof(ble_gattc_char_t); 
   ble_gattc_evt_char_disc_rsp_t* disc_chr = (ble_gattc_evt_char_disc_rsp_t*) rtos_malloc( bufsize );
 
   uint8_t found = 0;
@@ -129,11 +130,17 @@ uint8_t BLEDiscovery::discoverCharacteristic(uint16_t conn_handle, BLEClientChar
     // timeout or has no data (due to GATT Error)
     if ( bytecount <= 0 ) break;
 
+    // if we truncated the response, adjust the count to match
+    if ( disc_chr->count > MAX_DISC_CHARS ) disc_chr->count = MAX_DISC_CHARS;
+
     // Look for matched uuid in the discovered list
     for(uint8_t d=0 ; d<disc_chr->count; d++)
     {
       for (uint8_t i=0; i<count; i++)
       {
+        // Skip if output chr is already discovered, happens with multiple instances of same UUIDs
+        if ( chr[i]->discovered() ) continue;
+
         if ( chr[i]->uuid == disc_chr->chars[d].uuid )
         {
           LOG_LV2("DISC", "[CHR] Found 0x%04X, handle = %d\n-----------------", disc_chr->chars[d].uuid.uuid,  disc_chr->chars[d].handle_value);
@@ -144,7 +151,10 @@ uint8_t BLEDiscovery::discoverCharacteristic(uint16_t conn_handle, BLEClientChar
           // only discover CCCD descriptor
           if (disc_chr->chars[d].char_props.notify || disc_chr->chars[d].char_props.indicate )
           {
-            ble_gattc_handle_range_t range = { disc_chr->chars[d].handle_value + 1, _hdl_range.end_handle };
+            ble_gattc_handle_range_t range = {
+              .start_handle = (uint16_t) (disc_chr->chars[d].handle_value + 1),
+              .end_handle   = _hdl_range.end_handle
+            };
 
             if ( range.start_handle <= range.end_handle  )
             {

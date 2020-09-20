@@ -61,15 +61,14 @@ setName	KEYWORD2
 getName	KEYWORD2      
 setTxPower	KEYWORD2
 getTxPower	KEYWORD2
-setApperance	KEYWORD2
-getApperance	KEYWORD2
+setAppearance	KEYWORD2
+getAppearance	KEYWORD2
 
 connected	KEYWORD2
 disconnect	KEYWORD2
 setConnInterval	KEYWORD2
 setConnIntervalMS	KEYWORD2
 connHandle	KEYWORD2
-connPaired	KEYWORD2
 connInterval	KEYWORD2
 requestPairing	KEYWORD2
 clearBonds	KEYWORD2
@@ -470,9 +469,6 @@ SECMODE_SIGNED_WITH_MITM	LITERAL1
 #######################################
 # HID Constants
 #######################################
-
-HID_PROTOCOL_MODE_BOOT	LITERAL1
-HID_PROTOCOL_MODE_REPORT	LITERAL1
 
 MOUSE_BUTTON_LEFT	LITERAL1
 MOUSE_BUTTON_RIGHT	LITERAL1

@@ -43,23 +43,6 @@
 class AdafruitBluefruit;
 class BLEService;
 
-enum BleSecurityMode
-{
-  SECMODE_NO_ACCESS        = 0x00,
-  SECMODE_OPEN             = 0x11,
-  SECMODE_ENC_NO_MITM      = 0x21,
-  SECMODE_ENC_WITH_MITM    = 0x31,
-  SECMODE_SIGNED_NO_MITM   = 0x12,
-  SECMODE_SIGNED_WITH_MITM = 0x22
-};
-
-#define BLE_SECMODE_NO_ACCESS        ((ble_gap_conn_sec_mode_t) { .sm = 0, .lv = 0 })
-#define BLE_SECMODE_OPEN             ((ble_gap_conn_sec_mode_t) { .sm = 1, .lv = 1 })
-#define BLE_SECMODE_ENC_NO_MITM      ((ble_gap_conn_sec_mode_t) { .sm = 1, .lv = 2 })
-#define BLE_SECMODE_ENC_WITH_MITM    ((ble_gap_conn_sec_mode_t) { .sm = 1, .lv = 3 })
-#define BLE_SECMODE_SIGNED_NO_MITM   ((ble_gap_conn_sec_mode_t) { .sm = 2, .lv = 1 })
-#define BLE_SECMODE_SIGNED_WITH_MITM ((ble_gap_conn_sec_mode_t) { .sm = 2, .lv = 2 })
-
 enum CharsProperties
 {
   CHR_PROPS_BROADCAST       = bit(0),
@@ -95,9 +78,13 @@ class BLECharacteristic
     /*------------- Configure -------------*/
     void setUuid(BLEUuid bleuuid);
     void setProperties(uint8_t prop);
-    void setPermission(BleSecurityMode read_perm, BleSecurityMode write_perm);
+    void setPermission(SecureMode_t read_perm, SecureMode_t write_perm);
     void setMaxLen(uint16_t max_len);
     void setFixedLen(uint16_t fixed_len);
+    void setBuffer(void* buf, uint16_t bufsize);
+
+    uint16_t getMaxLen(void);
+    bool isFixedLen(void);
 
     /*------------- Descriptors -------------*/
     void setUserDescriptor(const char* descriptor); // aka user descriptor
@@ -113,7 +100,7 @@ class BLECharacteristic
     virtual err_t begin(void);
 
     // Add Descriptor function must be called right after begin()
-    err_t addDescriptor(BLEUuid bleuuid, void const * content, uint16_t len, BleSecurityMode read_perm = SECMODE_OPEN, BleSecurityMode write_perm = SECMODE_NO_ACCESS);
+    err_t addDescriptor(BLEUuid bleuuid, void const * content, uint16_t len, SecureMode_t read_perm = SECMODE_OPEN, SecureMode_t write_perm = SECMODE_NO_ACCESS);
 
     ble_gatts_char_handles_t handles(void);
 
@@ -139,6 +126,7 @@ class BLECharacteristic
     bool notifyEnabled(uint16_t conn_hdl);
 
     /*------------- Notify -------------*/
+//    bool notify   (void);
     bool notify   (const void* data, uint16_t len);
     bool notify   (const char* str);
 
@@ -148,6 +136,7 @@ class BLECharacteristic
     bool notify32 (int      num);
 
     /*------------- Notify multiple connections -------------*/
+//    bool notify   (uint16_t conn_hdl);
     bool notify   (uint16_t conn_hdl, const void* data, uint16_t len);
     bool notify   (uint16_t conn_hdl, const char* str);
 
@@ -181,16 +170,11 @@ class BLECharacteristic
     virtual void _eventHandler(ble_evt_t* event);
 
   protected:
-    struct ATTR_PACKED {
-      uint8_t write           : 1;
-      uint8_t cccd_write      : 1;
-      uint8_t read_authorize  : 1;
-      uint8_t write_authorize : 1;
-    } _use_ada_cb;
-
     bool _is_temp;
     uint16_t _max_len;
     BLEService* _service; // pointer to parent's service
+
+    uint8_t* _userbuf;
 
     /*------------- Descriptors -------------*/
     const char* _usr_descriptor;
@@ -211,11 +195,18 @@ class BLECharacteristic
     }_long_wr;
 
     /*------------- Callback pointers -------------*/
-    read_authorize_cb_t       _rd_authorize_cb;
-    write_authorize_cb_t      _wr_authorize_cb;
+    struct ATTR_PACKED {
+      uint8_t write           : 1;
+      uint8_t cccd_write      : 1;
+      uint8_t read_authorize  : 1;
+      uint8_t write_authorize : 1;
+    } _use_ada_cb;
 
-    write_cb_t                _wr_cb;
-    write_cccd_cb_t           _cccd_wr_cb;
+    read_authorize_cb_t   _rd_authorize_cb;
+    write_authorize_cb_t  _wr_authorize_cb;
+
+    write_cb_t            _wr_cb;
+    write_cccd_cb_t       _cccd_wr_cb;
 
     /*------------- Internal Functions -------------*/
     void _init(void);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012 - 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2012 - 2020, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -39,79 +39,27 @@ extern "C" {
 #endif
 
 /**
- * @defgroup nrf_ecb_drv AES ECB encryption driver
- * @{
- * @ingroup nrf_ecb
- * @brief   Driver for the AES Electronic Code Book (ECB) peripheral.
- *
- * To encrypt data, the peripheral must first be powered on
- * using @ref nrf_ecb_init. Next, the key must be set using @ref nrf_ecb_set_key.
- */
-
-/**
- * @brief Function for initializing and powering on the ECB peripheral.
- *
- * This function allocates memory for the ECBDATAPTR.
- * @retval true If initialization was successful.
- * @retval false If powering on failed.
- */
-bool nrf_ecb_init(void);
-
-/**
- * @brief Function for encrypting 16-byte data using current key.
- *
- * This function avoids unnecessary copying of data if the parameters point to the
- * correct locations in the ECB data structure.
- *
- * @param dst Result of encryption, 16 bytes will be written.
- * @param src Source with 16-byte data to be encrypted.
- *
- * @retval true  If the encryption operation completed.
- * @retval false If the encryption operation did not complete.
- */
-bool nrf_ecb_crypt(uint8_t * dst, const uint8_t * src);
-
-/**
- * @brief Function for setting the key to be used for encryption.
- *
- * @param key Pointer to the key. 16 bytes will be read.
- */
-void nrf_ecb_set_key(const uint8_t * key);
-
-/** @} */
-
-/**
  * @defgroup nrf_ecb_hal AES ECB encryption HAL
  * @{
  * @ingroup nrf_ecb
- * @brief   Hardware access layer for managing the AES Electronic Codebook (ECB) peripheral.
+ * @brief   Hardware access layer (HAL) for managing the Advanced Encryption Standard (AES) Electronic Codebook (ECB) peripheral.
  */
 
-/**
- * @brief ECB tasks.
- */
+/** @brief ECB tasks. */
 typedef enum
 {
-    /*lint -save -e30 -esym(628,__INTADDR__)*/
-    NRF_ECB_TASK_STARTECB = offsetof(NRF_ECB_Type, TASKS_STARTECB), /**< Task for starting ECB block encryption. */
-    NRF_ECB_TASK_STOPECB  = offsetof(NRF_ECB_Type, TASKS_STOPECB),  /**< Task for stopping ECB block encryption. */
-    /*lint -restore*/
+    NRF_ECB_TASK_STARTECB = offsetof(NRF_ECB_Type, TASKS_STARTECB), /**< Task for starting the ECB block encryption. */
+    NRF_ECB_TASK_STOPECB  = offsetof(NRF_ECB_Type, TASKS_STOPECB),  /**< Task for stopping the ECB block encryption. */
 } nrf_ecb_task_t;
 
-/**
- * @brief ECB events.
- */
+/** @brief ECB events. */
 typedef enum
 {
-    /*lint -save -e30*/
     NRF_ECB_EVENT_ENDECB   = offsetof(NRF_ECB_Type, EVENTS_ENDECB),   /**< ECB block encrypt complete. */
     NRF_ECB_EVENT_ERRORECB = offsetof(NRF_ECB_Type, EVENTS_ERRORECB), /**< ECB block encrypt aborted because of a STOPECB task or due to an error. */
-    /*lint -restore*/
 } nrf_ecb_event_t;
 
-/**
- * @brief ECB interrupts.
- */
+/** @brief ECB interrupts. */
 typedef enum
 {
     NRF_ECB_INT_ENDECB_MASK   = ECB_INTENSET_ENDECB_Msk,   ///< Interrupt on ENDECB event.
@@ -120,81 +68,79 @@ typedef enum
 
 
 /**
- * @brief Function for activating a specific ECB task.
+ * @brief Function for activating the specified ECB task.
  *
  * @param[in] p_reg Pointer to the peripheral register structure.
- * @param[in] task  Task to activate.
+ * @param[in] task  Task to be activated.
  */
-__STATIC_INLINE void nrf_ecb_task_trigger(NRF_ECB_Type * p_reg, nrf_ecb_task_t task);
+NRF_STATIC_INLINE void nrf_ecb_task_trigger(NRF_ECB_Type * p_reg, nrf_ecb_task_t task);
 
 /**
- * @brief Function for getting the address of a specific ECB task register.
+ * @brief Function for getting the address of the specified ECB task register.
  *
  * @param[in] p_reg Pointer to the peripheral register structure.
  * @param[in] task  Requested task.
  *
  * @return Address of the specified task register.
  */
-__STATIC_INLINE uint32_t nrf_ecb_task_address_get(NRF_ECB_Type const * p_reg,
-                                                  nrf_ecb_task_t       task);
+NRF_STATIC_INLINE uint32_t nrf_ecb_task_address_get(NRF_ECB_Type const * p_reg,
+                                                    nrf_ecb_task_t       task);
 
 /**
- * @brief Function for clearing a specific ECB event.
+ * @brief Function for clearing the specified ECB event.
  *
  * @param[in] p_reg Pointer to the peripheral register structure.
  * @param[in] event Event to clear.
  */
-__STATIC_INLINE void nrf_ecb_event_clear(NRF_ECB_Type * p_reg, nrf_ecb_event_t event);
+NRF_STATIC_INLINE void nrf_ecb_event_clear(NRF_ECB_Type * p_reg, nrf_ecb_event_t event);
 
 /**
- * @brief Function for checking the state of a specific ECB event.
+ * @brief Function for retrieving the state of the ECB event.
  *
- * @param[in] p_reg Pointer to the peripheral register structure.
- * @param[in] event Event to check.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] event Event to be checked.
  *
- * @retval true  If the event is set.
- * @retval false If the event is not set.
+ * @retval true  The event has been generated.
+ * @retval false The event has not been generated.
  */
-__STATIC_INLINE bool nrf_ecb_event_check(NRF_ECB_Type const * p_reg, nrf_ecb_event_t event);
+NRF_STATIC_INLINE bool nrf_ecb_event_check(NRF_ECB_Type const * p_reg, nrf_ecb_event_t event);
 
 /**
- * @brief Function for getting the address of a specific ECB event register.
+ * @brief Function for getting the address of the specified ECB event register.
  *
  * @param[in] p_reg Pointer to the peripheral register structure.
  * @param[in] event Requested event.
  *
  * @return Address of the specified event register.
  */
-__STATIC_INLINE uint32_t nrf_ecb_event_address_get(NRF_ECB_Type const * p_reg,
-                                                   nrf_ecb_event_t      event);
+NRF_STATIC_INLINE uint32_t nrf_ecb_event_address_get(NRF_ECB_Type const * p_reg,
+                                                     nrf_ecb_event_t      event);
 
 /**
- * @brief Function for enabling specified interrupts.
+ * @brief Function for enabling the specified interrupts.
  *
  * @param[in] p_reg Pointer to the peripheral register structure.
- * @param[in] mask  Interrupts to enable.
+ * @param[in] mask  Interrupts to be enabled.
  */
-__STATIC_INLINE void nrf_ecb_int_enable(NRF_ECB_Type * p_reg, uint32_t mask);
+NRF_STATIC_INLINE void nrf_ecb_int_enable(NRF_ECB_Type * p_reg, uint32_t mask);
 
 /**
- * @brief Function for disabling specified interrupts.
+ * @brief Function for disabling the specified interrupts.
  *
  * @param[in] p_reg Pointer to the peripheral register structure.
- * @param[in] mask  Interrupts to disable.
+ * @param[in] mask  Interrupts to be disabled.
  */
-__STATIC_INLINE void nrf_ecb_int_disable(NRF_ECB_Type * p_reg, uint32_t mask);
+NRF_STATIC_INLINE void nrf_ecb_int_disable(NRF_ECB_Type * p_reg, uint32_t mask);
 
 /**
- * @brief Function for retrieving the state of a given interrupt.
+ * @brief Function for checking if the specified interrupts are enabled.
  *
- * @param[in] p_reg   Pointer to the peripheral register structure.
- * @param[in] ecb_int Interrupt to check.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] mask  Mask of interrupts to be checked.
  *
- * @retval true  If the interrupt is enabled.
- * @retval false If the interrupt is not enabled.
+ * @return Mask of enabled interrupts.
  */
-__STATIC_INLINE bool nrf_ecb_int_enable_check(NRF_ECB_Type const * p_reg,
-                                              nrf_ecb_int_mask_t   ecb_int);
+NRF_STATIC_INLINE uint32_t nrf_ecb_int_enable_check(NRF_ECB_Type const * p_reg, uint32_t mask);
 
 /**
  * @brief Function for setting the pointer to the ECB data buffer.
@@ -205,7 +151,7 @@ __STATIC_INLINE bool nrf_ecb_int_enable_check(NRF_ECB_Type const * p_reg,
  * @param[in] p_reg    Pointer to the peripheral register structure.
  * @param[in] p_buffer Pointer to the ECB data buffer.
  */
-__STATIC_INLINE void nrf_ecb_data_pointer_set(NRF_ECB_Type * p_reg, void const * p_buffer);
+NRF_STATIC_INLINE void nrf_ecb_data_pointer_set(NRF_ECB_Type * p_reg, void const * p_buffer);
 
 /**
  * @brief Function for getting the pointer to the ECB data buffer.
@@ -214,22 +160,22 @@ __STATIC_INLINE void nrf_ecb_data_pointer_set(NRF_ECB_Type * p_reg, void const *
  *
  * @return Pointer to the ECB data buffer.
  */
-__STATIC_INLINE void * nrf_ecb_data_pointer_get(NRF_ECB_Type const * p_reg);
+NRF_STATIC_INLINE void * nrf_ecb_data_pointer_get(NRF_ECB_Type const * p_reg);
 
-#ifndef SUPPRESS_INLINE_IMPLEMENTATION
+#ifndef NRF_DECLARE_ONLY
 
-__STATIC_INLINE void nrf_ecb_task_trigger(NRF_ECB_Type * p_reg, nrf_ecb_task_t task)
+NRF_STATIC_INLINE void nrf_ecb_task_trigger(NRF_ECB_Type * p_reg, nrf_ecb_task_t task)
 {
     *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)task)) = 0x1UL;
 }
 
-__STATIC_INLINE uint32_t nrf_ecb_task_address_get(NRF_ECB_Type const * p_reg,
-                                                  nrf_ecb_task_t       task)
+NRF_STATIC_INLINE uint32_t nrf_ecb_task_address_get(NRF_ECB_Type const * p_reg,
+                                                    nrf_ecb_task_t       task)
 {
     return ((uint32_t)p_reg + (uint32_t)task);
 }
 
-__STATIC_INLINE void nrf_ecb_event_clear(NRF_ECB_Type * p_reg, nrf_ecb_event_t event)
+NRF_STATIC_INLINE void nrf_ecb_event_clear(NRF_ECB_Type * p_reg, nrf_ecb_event_t event)
 {
     *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)event)) = 0x0UL;
 #if __CORTEX_M == 0x04
@@ -238,44 +184,43 @@ __STATIC_INLINE void nrf_ecb_event_clear(NRF_ECB_Type * p_reg, nrf_ecb_event_t e
 #endif
 }
 
-__STATIC_INLINE bool nrf_ecb_event_check(NRF_ECB_Type const * p_reg, nrf_ecb_event_t event)
+NRF_STATIC_INLINE bool nrf_ecb_event_check(NRF_ECB_Type const * p_reg, nrf_ecb_event_t event)
 {
     return (bool)*(volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)event);
 }
 
-__STATIC_INLINE uint32_t nrf_ecb_event_address_get(NRF_ECB_Type const * p_reg,
-                                                   nrf_ecb_event_t      event)
+NRF_STATIC_INLINE uint32_t nrf_ecb_event_address_get(NRF_ECB_Type const * p_reg,
+                                                     nrf_ecb_event_t      event)
 {
     return ((uint32_t)p_reg + (uint32_t)event);
 }
 
-__STATIC_INLINE void nrf_ecb_int_enable(NRF_ECB_Type * p_reg, uint32_t mask)
+NRF_STATIC_INLINE void nrf_ecb_int_enable(NRF_ECB_Type * p_reg, uint32_t mask)
 {
     p_reg->INTENSET = mask;
 }
 
-__STATIC_INLINE void nrf_ecb_int_disable(NRF_ECB_Type * p_reg, uint32_t mask)
+NRF_STATIC_INLINE void nrf_ecb_int_disable(NRF_ECB_Type * p_reg, uint32_t mask)
 {
     p_reg->INTENCLR = mask;
 }
 
-__STATIC_INLINE bool nrf_ecb_int_enable_check(NRF_ECB_Type const * p_reg,
-                                              nrf_ecb_int_mask_t   ecb_int)
+NRF_STATIC_INLINE uint32_t nrf_ecb_int_enable_check(NRF_ECB_Type const * p_reg, uint32_t mask)
 {
-    return (bool)(p_reg->INTENSET & ecb_int);
+    return p_reg->INTENSET & mask;
 }
 
-__STATIC_INLINE void nrf_ecb_data_pointer_set(NRF_ECB_Type * p_reg, void const * p_buffer)
+NRF_STATIC_INLINE void nrf_ecb_data_pointer_set(NRF_ECB_Type * p_reg, void const * p_buffer)
 {
     p_reg->ECBDATAPTR = (uint32_t)p_buffer;
 }
 
-__STATIC_INLINE void * nrf_ecb_data_pointer_get(NRF_ECB_Type const * p_reg)
+NRF_STATIC_INLINE void * nrf_ecb_data_pointer_get(NRF_ECB_Type const * p_reg)
 {
     return (void *)(p_reg->ECBDATAPTR);
 }
 
-#endif // SUPPRESS_INLINE_IMPLEMENTATION
+#endif // NRF_DECLARE_ONLY
 
 /** @} */
 

@@ -38,18 +38,9 @@
 
 #include "common_inc.h"
 
-#ifndef CFG_CALLBACK_TASK_STACKSIZE
-#define CFG_CALLBACK_TASK_STACKSIZE     (512*2)
-#endif
-
-#ifndef CFG_CALLBACK_QUEUE_LENGTH
-#define CFG_CALLBACK_QUEUE_LENGTH       20
-#endif
-
 #ifndef CFG_CALLBACK_TIMEOUT
 #define CFG_CALLBACK_TIMEOUT            100
 #endif
-
 
 #ifdef __cplusplus
 extern "C"{
@@ -57,12 +48,11 @@ extern "C"{
 
 typedef struct
 {
-  void*   malloced_data;
-  void*   callback_func;
+  void*       malloced_data;
+  void const* callback_func;
 
   uint8_t arg_count;
-  bool    from_isr;
-//  uint8_t _reserved[2];
+//  uint8_t _reserved[3];
 
   uint32_t arguments[1]; // flexible array holder
 }ada_callback_t;
@@ -92,33 +82,6 @@ typedef void (*adacb_5arg_t) (uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
 #define _ADA_CB_ARGS(...)  _GET_6TH_ARG(_0, ##__VA_ARGS__, _ADA_CB_ARGS_5, _ADA_CB_ARGS_4, _ADA_CB_ARGS_3, _ADA_CB_ARGS_2, _ADA_CB_ARGS_1, _ADA_CB_ARGS_0)(__VA_ARGS__)
 
 /**
- * Macro function is called by other module with all intended parameters.
- */
-#define _cb_setup(_from_isr, _mdata, _mlen, _func, ... )      \
-  do {                                                        \
-      uint8_t const _count = VA_ARGS_NUM(__VA_ARGS__);        \
-      ada_callback_t* cb_data = (ada_callback_t*) rtos_malloc( sizeof(ada_callback_t) + (_count ? (_count-1)*4 : 0) );\
-      cb_data->malloced_data = NULL;                          \
-      if ( (_mdata) && (_mlen) ) {                            \
-        cb_data->malloced_data = rtos_malloc(_mlen);          \
-        memcpy(cb_data->malloced_data, _mdata, _mlen);        \
-      }                                                       \
-      cb_data->callback_func = (void*)_func;                  \
-      cb_data->arg_count = _count;                            \
-      if ( _count ) {                                         \
-        uint32_t arguments[] = { _ADA_CB_ARGS(__VA_ARGS__) }; \
-        /* argument most likely is _mdata if used, change it to malloced one */\
-        if ( (_mdata) && (_mlen) ) { \
-          for(uint8_t i=0; i<_count; i++) {\
-            if (arguments[i] == ((uint32_t) (_mdata))) { arguments[i] = ((uint32_t) cb_data->malloced_data); } \
-          }\
-        }\
-        memcpy(cb_data->arguments, arguments, 4*_count);      \
-      }                                                       \
-      ada_callback_queue(cb_data, _from_isr);                 \
-  } while(0)
-
-/**
  * Schedule an function and parameters to be invoked in Ada Callback Task
  * Macro can take at least 2 and at max 7 arguments
  * - 1st arg     : data pointer that need to be allocated and copied (e.g local variable). NULL if not used
@@ -127,15 +90,17 @@ typedef void (*adacb_5arg_t) (uint32_t, uint32_t, uint32_t, uint32_t, uint32_t);
  * - 3rd arg     : function to be invoked
  * - 3rd-7th arg : function argument, will be cast to uint32_t
  */
-#define ada_callback(... )           _cb_setup(false, __VA_ARGS__)
+#define ada_callback(_malloc_data, _malloc_len, _func, ... ) \
+  ({                                                                                          \
+      uint8_t const _count = VA_ARGS_NUM(__VA_ARGS__);                                        \
+      uint32_t arguments[] = { _ADA_CB_ARGS(__VA_ARGS__) };                                   \
+      ada_callback_invoke(_malloc_data, _malloc_len, (void const*) _func, arguments, _count); \
+  })
 
-/**
- * Similar to ada_callback() but invoke in ISR-context
- */
-#define ada_callback_fromISR(... )   _cb_setup(true, __VA_ARGS__)
-
-void ada_callback_init(void);
-void ada_callback_queue(ada_callback_t* cb_data, bool from_isr);
+void ada_callback_init(uint32_t stack_sz);
+bool ada_callback_invoke(const void* mdata, uint32_t mlen, const void* func, uint32_t arguments[], uint8_t argcount);
+void ada_callback_queue(ada_callback_t* cb_item);
+bool ada_callback_queue_resize(uint32_t new_depth);
 
 #ifdef __cplusplus
 }

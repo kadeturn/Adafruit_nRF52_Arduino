@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Nordic Semiconductor ASA
+ * Copyright (c) 2019 - 2020, Nordic Semiconductor ASA
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -82,107 +82,103 @@ typedef enum
 /** @brief MWU region watch masks. */
 typedef enum
 {
-    NRF_MWU_WATCH_REGION0_WRITE  = MWU_REGIONEN_RGN0WA_Msk,  ///< Region 0 write access watch mask
-    NRF_MWU_WATCH_REGION0_READ   = MWU_REGIONEN_RGN0RA_Msk,  ///< Region 0 read access watch mask
-    NRF_MWU_WATCH_REGION1_WRITE  = MWU_REGIONEN_RGN1WA_Msk,  ///< Region 1 write access watch mask
-    NRF_MWU_WATCH_REGION1_READ   = MWU_REGIONEN_RGN1RA_Msk,  ///< Region 1 read access watch mask
-    NRF_MWU_WATCH_REGION2_WRITE  = MWU_REGIONEN_RGN2WA_Msk,  ///< Region 2 write access watch mask
-    NRF_MWU_WATCH_REGION2_READ   = MWU_REGIONEN_RGN2RA_Msk,  ///< Region 2 read access watch mask
-    NRF_MWU_WATCH_REGION3_WRITE  = MWU_REGIONEN_RGN3WA_Msk,  ///< Region 3 write access watch mask
-    NRF_MWU_WATCH_REGION3_READ   = MWU_REGIONEN_RGN3RA_Msk,  ///< Region 3 read access watch mask
-    NRF_MWU_WATCH_PREGION0_WRITE = MWU_REGIONEN_PRGN0WA_Msk, ///< Peripheral region 0 write access watch mask
-    NRF_MWU_WATCH_PREGION0_READ  = MWU_REGIONEN_PRGN0RA_Msk, ///< Peripheral region 0 read access watch mask
-    NRF_MWU_WATCH_PREGION1_WRITE = MWU_REGIONEN_PRGN1WA_Msk, ///< Peripheral region 1 write access watch mask
-    NRF_MWU_WATCH_PREGION1_READ  = MWU_REGIONEN_PRGN1RA_Msk, ///< Peripheral region 1 read access watch mask
+    NRF_MWU_WATCH_REGION0_WRITE  = MWU_REGIONEN_RGN0WA_Msk,  ///< Region 0 write access watch mask.
+    NRF_MWU_WATCH_REGION0_READ   = MWU_REGIONEN_RGN0RA_Msk,  ///< Region 0 read access watch mask.
+    NRF_MWU_WATCH_REGION1_WRITE  = MWU_REGIONEN_RGN1WA_Msk,  ///< Region 1 write access watch mask.
+    NRF_MWU_WATCH_REGION1_READ   = MWU_REGIONEN_RGN1RA_Msk,  ///< Region 1 read access watch mask.
+    NRF_MWU_WATCH_REGION2_WRITE  = MWU_REGIONEN_RGN2WA_Msk,  ///< Region 2 write access watch mask.
+    NRF_MWU_WATCH_REGION2_READ   = MWU_REGIONEN_RGN2RA_Msk,  ///< Region 2 read access watch mask.
+    NRF_MWU_WATCH_REGION3_WRITE  = MWU_REGIONEN_RGN3WA_Msk,  ///< Region 3 write access watch mask.
+    NRF_MWU_WATCH_REGION3_READ   = MWU_REGIONEN_RGN3RA_Msk,  ///< Region 3 read access watch mask.
+    NRF_MWU_WATCH_PREGION0_WRITE = MWU_REGIONEN_PRGN0WA_Msk, ///< Peripheral region 0 write access watch mask.
+    NRF_MWU_WATCH_PREGION0_READ  = MWU_REGIONEN_PRGN0RA_Msk, ///< Peripheral region 0 read access watch mask.
+    NRF_MWU_WATCH_PREGION1_WRITE = MWU_REGIONEN_PRGN1WA_Msk, ///< Peripheral region 1 write access watch mask.
+    NRF_MWU_WATCH_PREGION1_READ  = MWU_REGIONEN_PRGN1RA_Msk, ///< Peripheral region 1 read access watch mask.
 } nrf_mwu_region_watch_t;
 
 /**
- * @brief Function for checking the state of a specific MWU event.
+ * @brief Function for retrieving the state of the MWU event.
  *
- * @param[in] p_reg     Pointer to the structure of registers of the peripheral.
- * @param[in] mwu_event Event to check.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] event Event to be checked.
  *
- * @retval true  If the event is set.
- * @retval false If the event is not set.
+ * @retval true  The event has been generated.
+ * @retval false The event has not been generated.
  */
-__STATIC_INLINE bool nrf_mwu_event_check(NRF_MWU_Type const * p_reg,
-                                         nrf_mwu_event_t      mwu_event);
+NRF_STATIC_INLINE bool nrf_mwu_event_check(NRF_MWU_Type const * p_reg,
+                                           nrf_mwu_event_t      event);
 
 /**
  * @brief Function for clearing a specific MWU event.
  *
- * @param[in] p_reg     Pointer to the structure of registers of the peripheral.
- * @param[in] mwu_event Event to clear.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] event Event to clear.
  */
-__STATIC_INLINE void nrf_mwu_event_clear(NRF_MWU_Type *  p_reg,
-                                         nrf_mwu_event_t mwu_event);
+NRF_STATIC_INLINE void nrf_mwu_event_clear(NRF_MWU_Type *  p_reg,
+                                           nrf_mwu_event_t event);
 
 /**
  * @brief Function for getting the address of a specific MWU event register.
  *
- * @param[in] p_reg     Pointer to the structure of registers of the peripheral.
- * @param[in] mwu_event Requested event.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] event Requested event.
  *
  * @return Address of the specified event register.
  */
-__STATIC_INLINE uint32_t nrf_mwu_event_address_get(NRF_MWU_Type const * p_reg,
-                                                   nrf_mwu_event_t      mwu_event);
+NRF_STATIC_INLINE uint32_t nrf_mwu_event_address_get(NRF_MWU_Type const * p_reg,
+                                                     nrf_mwu_event_t      event);
 
 /**
  * @brief Function for enabling specified interrupts.
  *
- * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
- * @param[in] int_mask Interrupts to enable.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] mask  Mask of interrupts to be enabled.
  */
-__STATIC_INLINE void nrf_mwu_int_enable(NRF_MWU_Type * p_reg, uint32_t int_mask);
+NRF_STATIC_INLINE void nrf_mwu_int_enable(NRF_MWU_Type * p_reg, uint32_t mask);
 
 /**
- * @brief Function for retrieving the state of a specific interrupt.
+ * @brief Function for checking if the specified interrupts are enabled.
  *
- * @param[in] p_reg   Pointer to the structure of registers of the peripheral.
- * @param[in] mwu_int Interrupt to check.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] mask  Mask of interrupts to be checked.
  *
- * @retval true  If the interrupt is enabled.
- * @retval false If the interrupt is not enabled.
+ * @return Mask of enabled interrupts.
  */
-__STATIC_INLINE bool nrf_mwu_int_enable_check(NRF_MWU_Type const * p_reg,
-                                              nrf_mwu_int_mask_t   mwu_int);
+NRF_STATIC_INLINE uint32_t nrf_mwu_int_enable_check(NRF_MWU_Type const * p_reg, uint32_t mask);
 
 /**
  * @brief Function for disabling specified interrupts.
  *
- * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
- * @param[in] int_mask Interrupts to disable.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] mask  Mask of interrupts to be disabled.
  */
-__STATIC_INLINE void nrf_mwu_int_disable(NRF_MWU_Type * p_reg, uint32_t int_mask);
+NRF_STATIC_INLINE void nrf_mwu_int_disable(NRF_MWU_Type * p_reg, uint32_t mask);
 
 /**
  * @brief Function for enabling specified non-maskable interrupts.
  *
- * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
- * @param[in] int_mask Interrupts to enable.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] mask  Mask of interrupts to be enabled.
  */
-__STATIC_INLINE void nrf_mwu_nmi_enable(NRF_MWU_Type * p_reg, uint32_t int_mask);
+NRF_STATIC_INLINE void nrf_mwu_nmi_enable(NRF_MWU_Type * p_reg, uint32_t mask);
 
 /**
- * @brief Function for retrieving the state of a specific non-maskable interrupt.
+ * @brief Function for checking if the specified non-maskable interrupts are enabled.
  *
- * @param[in] p_reg   Pointer to the structure of registers of the peripheral.
- * @param[in] mwu_int Interrupt to check.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] mask  Mask of interrupts to be checked.
  *
- * @retval true  If the interrupt is enabled.
- * @retval false If the interrupt is not enabled.
+ * @return Mask of enabled interrupts.
  */
-__STATIC_INLINE bool nrf_mwu_nmi_enable_check(NRF_MWU_Type const * p_reg,
-                                              nrf_mwu_int_mask_t   mwu_int);
+NRF_STATIC_INLINE uint32_t nrf_mwu_nmi_enable_check(NRF_MWU_Type const * p_reg, uint32_t mask);
 
 /**
  * @brief Function for disabling specified non-maskable interrupts.
  *
- * @param[in] p_reg    Pointer to the structure of registers of the peripheral.
- * @param[in] int_mask Interrupts to disable.
+ * @param[in] p_reg Pointer to the structure of registers of the peripheral.
+ * @param[in] mask  Mask of interrupts to be disabled.
  */
-__STATIC_INLINE void nrf_mwu_nmi_disable(NRF_MWU_Type * p_reg, uint32_t int_mask);
+NRF_STATIC_INLINE void nrf_mwu_nmi_disable(NRF_MWU_Type * p_reg, uint32_t mask);
 
 /**
  * @brief Function for setting address range of the specified user region.
@@ -192,10 +188,10 @@ __STATIC_INLINE void nrf_mwu_nmi_disable(NRF_MWU_Type * p_reg, uint32_t int_mask
  * @param[in] start_addr Memory address defining the beginning of the region.
  * @param[in] end_addr   Memory address defining the end of the region.
  */
-__STATIC_INLINE void nrf_mwu_user_region_range_set(NRF_MWU_Type * p_reg,
-                                                   uint8_t        region_idx,
-                                                   uint32_t       start_addr,
-                                                   uint32_t       end_addr);
+NRF_STATIC_INLINE void nrf_mwu_user_region_range_set(NRF_MWU_Type * p_reg,
+                                                     uint8_t        region_idx,
+                                                     uint32_t       start_addr,
+                                                     uint32_t       end_addr);
 
 /**
  * @brief Function for enabling memory access watch mechanism.
@@ -204,7 +200,7 @@ __STATIC_INLINE void nrf_mwu_user_region_range_set(NRF_MWU_Type * p_reg,
  * @param[in] reg_watch_mask Mask that defines regions and access types to watch.
  *                           Compose this mask from @ref nrf_mwu_region_watch_t values.
  */
-__STATIC_INLINE void nrf_mwu_region_watch_enable(NRF_MWU_Type * p_reg, uint32_t reg_watch_mask);
+NRF_STATIC_INLINE void nrf_mwu_region_watch_enable(NRF_MWU_Type * p_reg, uint32_t reg_watch_mask);
 
 /**
  * @brief Function for disabling memory access watch mechanism.
@@ -213,7 +209,7 @@ __STATIC_INLINE void nrf_mwu_region_watch_enable(NRF_MWU_Type * p_reg, uint32_t 
  * @param[in] reg_watch_mask Mask that defines regions and access types to stop watching.
  *                           Compose this mask from @ref nrf_mwu_region_watch_t values.
  */
-__STATIC_INLINE void nrf_mwu_region_watch_disable(NRF_MWU_Type * p_reg, uint32_t reg_watch_mask);
+NRF_STATIC_INLINE void nrf_mwu_region_watch_disable(NRF_MWU_Type * p_reg, uint32_t reg_watch_mask);
 
 /**
  * @brief Function for getting memory access watch configuration mask.
@@ -222,7 +218,7 @@ __STATIC_INLINE void nrf_mwu_region_watch_disable(NRF_MWU_Type * p_reg, uint32_t
  *
  * @return Mask that defines regions and access types being watched.
  */
-__STATIC_INLINE uint32_t nrf_mwu_region_watch_get(NRF_MWU_Type const * p_reg);
+NRF_STATIC_INLINE uint32_t nrf_mwu_region_watch_get(NRF_MWU_Type const * p_reg);
 
 /**
  * @brief Function for configuring peripheral subregions for watching.
@@ -231,20 +227,20 @@ __STATIC_INLINE uint32_t nrf_mwu_region_watch_get(NRF_MWU_Type const * p_reg);
  * @param[in] per_reg_idx    Peripheral region containing specified subregions.
  * @param[in] subregion_mask Mask that defines subregions to include into the specified peripheral region.
  */
-__STATIC_INLINE void nrf_mwu_subregions_configure(NRF_MWU_Type * p_reg,
-                                                  uint8_t        per_reg_idx,
-                                                  uint32_t       subregion_mask);
+NRF_STATIC_INLINE void nrf_mwu_subregions_configure(NRF_MWU_Type * p_reg,
+                                                    uint8_t        per_reg_idx,
+                                                    uint32_t       subregion_mask);
 
 /**
  * @brief Function for getting the mask of the write access flags of peripheral subregions
  *
  * @param[in] p_reg       Pointer to the structure of registers of the peripheral.
- * @param[in] per_reg_idx Peripheral region containing subregions to check.
+ * @param[in] per_reg_idx Peripheral region containing subregions to be checked.
  *
  * @return Mask specifying subregions that were write accessed.
  */
-__STATIC_INLINE uint32_t nrf_mwu_subregions_write_accesses_get(NRF_MWU_Type const * p_reg,
-                                                               uint8_t              per_reg_idx);
+NRF_STATIC_INLINE uint32_t nrf_mwu_subregions_write_accesses_get(NRF_MWU_Type const * p_reg,
+                                                                 uint8_t              per_reg_idx);
 
 /**
  * @brief Function for clearing write access flags of peripheral subregions.
@@ -253,20 +249,20 @@ __STATIC_INLINE uint32_t nrf_mwu_subregions_write_accesses_get(NRF_MWU_Type cons
  * @param[in] per_reg_idx    Peripheral region containing subregion accesses to clear.
  * @param[in] subregion_mask Mask that defines subregion write accesses to clear.
  */
-__STATIC_INLINE void nrf_mwu_subregions_write_accesses_clear(NRF_MWU_Type * p_reg,
-                                                             uint8_t        per_reg_idx,
-                                                             uint32_t       subregion_mask);
+NRF_STATIC_INLINE void nrf_mwu_subregions_write_accesses_clear(NRF_MWU_Type * p_reg,
+                                                               uint8_t        per_reg_idx,
+                                                               uint32_t       subregion_mask);
 
 /**
  * @brief Function for getting the mask of the read access flags of peripheral subregions
  *
  * @param[in] p_reg       Pointer to the structure of registers of the peripheral.
- * @param[in] per_reg_idx Peripheral region containing subregions to check.
+ * @param[in] per_reg_idx Peripheral region containing subregions to be checked.
  *
  * @return Mask specifying subregions that were read accessed.
  */
-__STATIC_INLINE uint32_t nrf_mwu_subregions_read_accesses_get(NRF_MWU_Type const * p_reg,
-                                                              uint8_t              per_reg_idx);
+NRF_STATIC_INLINE uint32_t nrf_mwu_subregions_read_accesses_get(NRF_MWU_Type const * p_reg,
+                                                                uint8_t              per_reg_idx);
 
 /**
  * @brief Function for clearing read access flags of peripheral subregions.
@@ -275,137 +271,124 @@ __STATIC_INLINE uint32_t nrf_mwu_subregions_read_accesses_get(NRF_MWU_Type const
  * @param[in] per_reg_idx    Peripheral region containing subregion accesses to clear.
  * @param[in] subregion_mask Mask that defines subregion read accesses to clear.
  */
-__STATIC_INLINE void nrf_mwu_subregions_read_accesses_clear(NRF_MWU_Type * p_reg,
-                                                            uint8_t        per_reg_idx,
-                                                            uint32_t       subregion_mask);
+NRF_STATIC_INLINE void nrf_mwu_subregions_read_accesses_clear(NRF_MWU_Type * p_reg,
+                                                              uint8_t        per_reg_idx,
+                                                              uint32_t       subregion_mask);
 
-#ifndef SUPPRESS_INLINE_IMPLEMENTATION
+#ifndef NRF_DECLARE_ONLY
 
-__STATIC_INLINE bool nrf_mwu_event_check(NRF_MWU_Type const * p_reg,
-                                         nrf_mwu_event_t      mwu_event)
+NRF_STATIC_INLINE bool nrf_mwu_event_check(NRF_MWU_Type const * p_reg,
+                                           nrf_mwu_event_t      event)
 {
-    return (bool)*(volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)mwu_event);
+    return (bool)*(volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)event);
 }
 
-__STATIC_INLINE void nrf_mwu_event_clear(NRF_MWU_Type *  p_reg,
-                                         nrf_mwu_event_t mwu_event)
+NRF_STATIC_INLINE void nrf_mwu_event_clear(NRF_MWU_Type *  p_reg,
+                                           nrf_mwu_event_t event)
 {
-    *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)mwu_event)) = 0;
+    *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)event)) = 0;
 #if __CORTEX_M == 0x04
-    volatile uint32_t dummy = *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)mwu_event));
+    volatile uint32_t dummy = *((volatile uint32_t *)((uint8_t *)p_reg + (uint32_t)event));
     (void)dummy;
 #endif
 }
 
-__STATIC_INLINE uint32_t nrf_mwu_event_address_get(NRF_MWU_Type const * p_reg,
-                                                   nrf_mwu_event_t      mwu_event)
+NRF_STATIC_INLINE uint32_t nrf_mwu_event_address_get(NRF_MWU_Type const * p_reg,
+                                                     nrf_mwu_event_t      event)
 {
-    return (uint32_t)((uint8_t *)p_reg + (uint32_t)mwu_event);
+    return (uint32_t)((uint8_t *)p_reg + (uint32_t)event);
 }
 
-__STATIC_INLINE void nrf_mwu_int_enable(NRF_MWU_Type * p_reg, uint32_t int_mask)
+NRF_STATIC_INLINE void nrf_mwu_int_enable(NRF_MWU_Type * p_reg, uint32_t mask)
 {
-    p_reg->INTENSET = int_mask;
+    p_reg->INTENSET = mask;
 }
 
-__STATIC_INLINE bool nrf_mwu_int_enable_check(NRF_MWU_Type const * p_reg,
-                                              nrf_mwu_int_mask_t   mwu_int)
+NRF_STATIC_INLINE uint32_t nrf_mwu_int_enable_check(NRF_MWU_Type const * p_reg, uint32_t mask)
 {
-    return (bool)(p_reg->INTENSET & mwu_int);
+    return p_reg->INTENSET & mask;
 }
 
-__STATIC_INLINE void nrf_mwu_int_disable(NRF_MWU_Type * p_reg, uint32_t int_mask)
+NRF_STATIC_INLINE void nrf_mwu_int_disable(NRF_MWU_Type * p_reg, uint32_t mask)
 {
-    p_reg->INTENCLR = int_mask;
+    p_reg->INTENCLR = mask;
 }
 
-__STATIC_INLINE void nrf_mwu_nmi_enable(NRF_MWU_Type * p_reg, uint32_t int_mask)
+NRF_STATIC_INLINE void nrf_mwu_nmi_enable(NRF_MWU_Type * p_reg, uint32_t mask)
 {
-    p_reg->NMIENSET = int_mask;
+    p_reg->NMIENSET = mask;
 }
 
-__STATIC_INLINE bool nrf_mwu_nmi_enable_check(NRF_MWU_Type const * p_reg,
-                                              nrf_mwu_int_mask_t   mwu_int)
+NRF_STATIC_INLINE uint32_t nrf_mwu_nmi_enable_check(NRF_MWU_Type const * p_reg, uint32_t mask)
 {
-    return (bool)(p_reg->NMIENSET & mwu_int);
+    return p_reg->NMIENSET & mask;
 }
 
-__STATIC_INLINE void nrf_mwu_nmi_disable(NRF_MWU_Type * p_reg, uint32_t int_mask)
+NRF_STATIC_INLINE void nrf_mwu_nmi_disable(NRF_MWU_Type * p_reg, uint32_t mask)
 {
-    p_reg->NMIENCLR = int_mask;
+    p_reg->NMIENCLR = mask;
 }
 
-__STATIC_INLINE void nrf_mwu_user_region_range_set(NRF_MWU_Type * p_reg,
-                                                   uint8_t        region_idx,
-                                                   uint32_t       start_addr,
-                                                   uint32_t       end_addr)
+NRF_STATIC_INLINE void nrf_mwu_user_region_range_set(NRF_MWU_Type * p_reg,
+                                                     uint8_t        region_idx,
+                                                     uint32_t       start_addr,
+                                                     uint32_t       end_addr)
 {
-    NRFX_ASSERT(region_idx < NRFX_ARRAY_SIZE(NRF_MWU->REGION));
     NRFX_ASSERT(end_addr >= start_addr);
 
     p_reg->REGION[region_idx].START = start_addr;
     p_reg->REGION[region_idx].END = end_addr;
 }
 
-__STATIC_INLINE void nrf_mwu_region_watch_enable(NRF_MWU_Type * p_reg, uint32_t reg_watch_mask)
+NRF_STATIC_INLINE void nrf_mwu_region_watch_enable(NRF_MWU_Type * p_reg, uint32_t reg_watch_mask)
 {
     p_reg->REGIONENSET = reg_watch_mask;
 }
 
-__STATIC_INLINE void nrf_mwu_region_watch_disable(NRF_MWU_Type * p_reg, uint32_t reg_watch_mask)
+NRF_STATIC_INLINE void nrf_mwu_region_watch_disable(NRF_MWU_Type * p_reg, uint32_t reg_watch_mask)
 {
     p_reg->REGIONENCLR = reg_watch_mask;
 }
 
-__STATIC_INLINE uint32_t nrf_mwu_region_watch_get(NRF_MWU_Type const * p_reg)
+NRF_STATIC_INLINE uint32_t nrf_mwu_region_watch_get(NRF_MWU_Type const * p_reg)
 {
     return p_reg->REGIONENSET;
 }
 
-__STATIC_INLINE void nrf_mwu_subregions_configure(NRF_MWU_Type * p_reg,
-                                                  uint8_t        per_reg_idx,
-                                                  uint32_t       subregion_mask)
+NRF_STATIC_INLINE void nrf_mwu_subregions_configure(NRF_MWU_Type * p_reg,
+                                                    uint8_t        per_reg_idx,
+                                                    uint32_t       subregion_mask)
 {
-    NRFX_ASSERT(per_reg_idx < NRFX_ARRAY_SIZE(NRF_MWU->PREGION));
-
     p_reg->PREGION[per_reg_idx].SUBS = subregion_mask;
 }
 
-__STATIC_INLINE uint32_t nrf_mwu_subregions_write_accesses_get(NRF_MWU_Type const * p_reg,
-                                                               uint8_t              per_reg_idx)
+NRF_STATIC_INLINE uint32_t nrf_mwu_subregions_write_accesses_get(NRF_MWU_Type const * p_reg,
+                                                                 uint8_t              per_reg_idx)
 {
-    NRFX_ASSERT(per_reg_idx < NRFX_ARRAY_SIZE(NRF_MWU->PREGION));
-
     return p_reg->PERREGION[per_reg_idx].SUBSTATWA;
 }
 
-__STATIC_INLINE void nrf_mwu_subregions_write_accesses_clear(NRF_MWU_Type * p_reg,
-                                                             uint8_t        per_reg_idx,
-                                                             uint32_t       subregion_mask)
+NRF_STATIC_INLINE void nrf_mwu_subregions_write_accesses_clear(NRF_MWU_Type * p_reg,
+                                                               uint8_t        per_reg_idx,
+                                                               uint32_t       subregion_mask)
 {
-    NRFX_ASSERT(per_reg_idx < NRFX_ARRAY_SIZE(NRF_MWU->PREGION));
-
     p_reg->PERREGION[per_reg_idx].SUBSTATWA = subregion_mask;
 }
 
-__STATIC_INLINE uint32_t nrf_mwu_subregions_read_accesses_get(NRF_MWU_Type const * p_reg,
-                                                              uint8_t              per_reg_idx)
+NRF_STATIC_INLINE uint32_t nrf_mwu_subregions_read_accesses_get(NRF_MWU_Type const * p_reg,
+                                                                uint8_t              per_reg_idx)
 {
-    NRFX_ASSERT(per_reg_idx < NRFX_ARRAY_SIZE(NRF_MWU->PREGION));
-
     return p_reg->PERREGION[per_reg_idx].SUBSTATRA;
 }
 
-__STATIC_INLINE void nrf_mwu_subregions_read_accesses_clear(NRF_MWU_Type * p_reg,
-                                                            uint8_t        per_reg_idx,
-                                                            uint32_t       subregion_mask)
+NRF_STATIC_INLINE void nrf_mwu_subregions_read_accesses_clear(NRF_MWU_Type * p_reg,
+                                                              uint8_t        per_reg_idx,
+                                                              uint32_t       subregion_mask)
 {
-    NRFX_ASSERT(per_reg_idx < NRFX_ARRAY_SIZE(NRF_MWU->PREGION));
-
     p_reg->PERREGION[per_reg_idx].SUBSTATRA = subregion_mask;
 }
 
-#endif // SUPPRESS_INLINE_IMPLEMENTATION
+#endif // NRF_DECLARE_ONLY
 
 /** @} */
 

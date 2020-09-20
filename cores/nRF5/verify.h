@@ -50,25 +50,27 @@ extern "C"
 //--------------------------------------------------------------------+
 // Compile-time Assert
 //--------------------------------------------------------------------+
-#if defined __COUNTER__ && __COUNTER__ != __COUNTER__
-  #define _VERIFY_COUNTER __COUNTER__
-#else
-  #define _VERIFY_COUNTER __LINE__
-#endif
-
-#define VERIFY_STATIC(const_expr) enum { XSTRING_CONCAT_(static_verify_, _VERIFY_COUNTER) = 1/(!!(const_expr)) }
+#define VERIFY_STATIC(const_expr) TU_VERIFY_STATIC(const_expr, "Assert failed")
 
 //--------------------------------------------------------------------+
 // VERIFY Helper
 //--------------------------------------------------------------------+
 #if CFG_DEBUG >= 1
-  #define VERIFY_MESS(_status, _funcstr) \
-    do { \
-      const char* (*_fstr)(int32_t) = _funcstr;\
-      printf("%s: %d: verify failed, error = ", __PRETTY_FUNCTION__, __LINE__);\
-      if (_fstr) printf(_fstr(_status)); else printf("%d", _status);\
-      printf("\n");\
-    }while(0)
+#include <stdio.h>
+  #define VERIFY_MESS(_status, _functstr) VERIFY_MESS_impl(_status, _functstr, __PRETTY_FUNCTION__, __LINE__)
+  static inline void VERIFY_MESS_impl(int32_t _status, const char* (*_fstr)(int32_t), const char* func_name, int line_number)
+  {
+      PRINTF("%s: %d: verify failed, error = ", func_name, line_number);
+      if (_fstr && _fstr(_status))
+      {
+        PRINTF(_fstr(_status));
+      }
+      else
+      {
+        PRINTF("0x%lX (%ld)", _status, _status);
+      }
+      PRINTF("\n");
+  }
 #else
   #define VERIFY_MESS(_status, _funcstr)
 #endif
@@ -105,9 +107,15 @@ extern "C"
  * - status value if called with 1 parameter e.g VERIFY_STATUS(status)
  * - 2 parameter if called with 2 parameters e.g VERIFY_STATUS(status, errorcode)
  */
-#define VERIFY_STATUS(...)  _GET_3RD_ARG(__VA_ARGS__, VERIFY_ERR_2ARGS, VERIFY_ERR_1ARGS)(__VA_ARGS__, dbg_err_str)
+#define VERIFY_STATUS(...)      _GET_3RD_ARG(__VA_ARGS__, VERIFY_ERR_2ARGS, VERIFY_ERR_1ARGS)(__VA_ARGS__, dbg_err_str)
 
-#define VERIFY_ERROR(...)   _GET_3RD_ARG(__VA_ARGS__, VERIFY_ERR_2ARGS, VERIFY_ERR_1ARGS)(__VA_ARGS__, NULL)
+#define PRINT_STATUS(_exp) do                            \
+{                                                        \
+  int32_t _status = (int32_t) _exp;                      \
+  if ( 0 != _status ) VERIFY_MESS(_status, dbg_err_str); \
+} while(0)                                               \
+
+#define VERIFY_ERROR(...)       _GET_3RD_ARG(__VA_ARGS__, VERIFY_ERR_2ARGS, VERIFY_ERR_1ARGS)(__VA_ARGS__, NULL)
 
 /*------------------------------------------------------------------*/
 /* VERIFY

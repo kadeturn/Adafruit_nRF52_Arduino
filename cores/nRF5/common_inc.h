@@ -38,9 +38,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #include "compiler_macro.h"
-#include "verify.h"
 #include "common_func.h"
+#include "verify.h"
 
 #endif /* COMMON_INC_H_ */

@@ -46,7 +46,7 @@ TwoWire::TwoWire(NRF_TWIM_Type * p_twim, NRF_TWIS_Type * p_twis, IRQn_Type IRQn,
 }
 
 void TwoWire::begin(void) {
-  //Master Mode
+  //Main Mode
   master = true;
 
   *pincfg_reg(_uc_pinSCL) = ((uint32_t)GPIO_PIN_CNF_DIR_Input        << GPIO_PIN_CNF_DIR_Pos)
@@ -72,7 +72,7 @@ void TwoWire::begin(void) {
 }
 
 void TwoWire::begin(uint8_t address) {
-  //Slave mode
+  //Secondary mode
   master = false;
 
   *pincfg_reg(_uc_pinSCL) = ((uint32_t)GPIO_PIN_CNF_DIR_Input        << GPIO_PIN_CNF_DIR_Pos)
@@ -125,6 +125,12 @@ void TwoWire::setClock(uint32_t baudrate) {
     _p_twim->FREQUENCY = frequency;
     _p_twim->ENABLE = (TWIM_ENABLE_ENABLE_Enabled << TWIM_ENABLE_ENABLE_Pos);
   }
+}
+
+void TwoWire::setPins(uint8_t pinSDA, uint8_t pinSCL)
+{
+    this->_uc_pinSDA = g_ADigitalPinMap[pinSDA];
+    this->_uc_pinSCL = g_ADigitalPinMap[pinSCL];
 }
 
 void TwoWire::end() {
@@ -392,16 +398,44 @@ void TwoWire::onService(void)
   }
 }
 
-TwoWire Wire(NRF_TWIM1, NRF_TWIS1, SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn, PIN_WIRE_SDA, PIN_WIRE_SCL);
-
 #if WIRE_INTERFACES_COUNT > 0
+TwoWire Wire(NRF_TWIM0, NRF_TWIS0, SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQn, PIN_WIRE_SDA, PIN_WIRE_SCL);
+
 extern "C"
 {
-  void SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler(void)
+  void SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0_IRQHandler(void)
   {
+    #if CFG_SYSVIEW
+    SEGGER_SYSVIEW_RecordEnterISR();
+    #endif
+
     Wire.onService();
+
+    #if CFG_SYSVIEW
+    SEGGER_SYSVIEW_RecordExitISR();
+    #endif
   }
 }
 #endif
 
+#if WIRE_INTERFACES_COUNT > 1
+TwoWire Wire1(NRF_TWIM1, NRF_TWIS1, SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQn, PIN_WIRE1_SDA, PIN_WIRE1_SCL);
+
+extern "C"
+{
+  void SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1_IRQHandler(void)
+  {
+    #if CFG_SYSVIEW
+    SEGGER_SYSVIEW_RecordEnterISR();
+    #endif
+
+    Wire1.onService();
+
+    #if CFG_SYSVIEW
+    SEGGER_SYSVIEW_RecordExitISR();
+    #endif
+  }
+}
 #endif
+
+#endif // NRF52_SERIES

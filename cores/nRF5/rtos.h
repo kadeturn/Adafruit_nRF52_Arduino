@@ -50,7 +50,10 @@
 #include "queue.h"
 #include "semphr.h"
 
+#define DEBUG_MALLOC    1
+
 #define DELAY_FOREVER   portMAX_DELAY
+
 enum
 {
   TASK_PRIO_LOWEST  = 0, // Idle task, should not be used
@@ -65,14 +68,11 @@ enum
 #define tick2ms(tck)         ( ( ((uint64_t)(tck)) * 1000) / configTICK_RATE_HZ )
 #define tick2us(tck)         ( ( ((uint64_t)(tck)) * 1000000) / configTICK_RATE_HZ )
 
-#define malloc_type(type)    rtos_malloc( sizeof(type) )
-
-#if 0
-#define rtos_malloc(_size)  ({ printf("[malloc] %s:%d : %d bytes\r\n", __PRETTY_FUNCTION__, __LINE__, _size); pvPortMalloc(_size); })
-#define rtos_free(ptr)      ({ printf("[free] %s:%d\r\n"    ,__PRETTY_FUNCTION__, __LINE__/*malloc_usable_size(ptr)*/); vPortFree(ptr); })
+#if DEBUG_MALLOC
+  #define rtos_malloc_type(_type)   ({ LOG_LV2("MALLOC", #_type " = %d bytes", sizeof(_type)); ((_type*) rtos_malloc(sizeof(_type))); })
 #else
-
-#define rtos_malloc_type(_type)   (_type*) rtos_malloc(sizeof(_type))
+  #define rtos_malloc_type(_type)   ((_type*) rtos_malloc(sizeof(_type)))
+#endif
 
 static inline void* rtos_malloc(size_t _size)
 {
@@ -84,29 +84,23 @@ static inline void rtos_free( void *pv )
   return (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED) ? free(pv) : vPortFree(pv);
 }
 
-#endif
-
-#ifdef __cplusplus // Visible only with cplusplus
+// Visible only with C++
+#ifdef __cplusplus
 
 #define SCHEDULER_STACK_SIZE_DFLT   (512*2)
 
 class SchedulerRTOS
 {
-private:
-  uint8_t _num;
-
 public:
   typedef void (*taskfunc_t)(void);
 
   SchedulerRTOS(void);
 
-  bool startLoop(taskfunc_t task, uint32_t stack_size = SCHEDULER_STACK_SIZE_DFLT);
-  bool startLoop(taskfunc_t task, const char* name, uint32_t stack_size = SCHEDULER_STACK_SIZE_DFLT);
+  bool startLoop(taskfunc_t task, uint32_t stack_size = SCHEDULER_STACK_SIZE_DFLT, uint32_t prio = TASK_PRIO_LOW, const char* name = NULL);
 };
 
 extern SchedulerRTOS Scheduler;
 
-#endif
-
+#endif // __cplusplus
 
 #endif /* RTOS_H_ */

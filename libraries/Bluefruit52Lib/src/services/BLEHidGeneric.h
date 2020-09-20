@@ -42,37 +42,22 @@
 #include "BLEService.h"
 
 // include usb hid definitions
-#include "class/hid/hid.h"
+#include "tinyusb/src/class/hid/hid.h"
 
-enum
-{
-  HID_PROTOCOL_MODE_BOOT   = 0,
-  HID_PROTOCOL_MODE_REPORT = 1
-};
-
-typedef struct{
-  uint8_t shift;
-  uint8_t keycode;
-}hid_ascii_to_keycode_entry_t;
-extern const hid_ascii_to_keycode_entry_t hid_ascii_to_keycode[128];
-
-typedef struct{
-  uint8_t ascii;
-  uint8_t shifted;
-}hid_keycode_to_ascii_t;
-extern hid_keycode_to_ascii_t const hid_keycode_to_ascii[128];
-
+extern const uint8_t hid_ascii_to_keycode[128][2];
+extern const uint8_t hid_keycode_to_ascii[128][2];
 
 /// HID Consumer Control Report
-typedef ATTR_PACKED_STRUCT(struct)
+typedef struct ATTR_PACKED
 {
   uint16_t usage_value; ///< Usage value of the pressed control
 } hid_consumer_control_report_t;
 
 /// Gamepad report
-typedef ATTR_PACKED_STRUCT(struct)
+typedef struct ATTR_PACKED
 {
-  ATTR_PACKED_STRUCT(struct){
+  struct ATTR_PACKED
+  {
     uint8_t x : 2;
     uint8_t y : 2;
     uint8_t : 4;
@@ -99,7 +84,7 @@ class BLEHidGeneric : public BLEService
 
     virtual err_t begin(void);
 
-    bool isBootMode(void) { return _protocol_mode == HID_PROTOCOL_MODE_BOOT; }
+    bool isBootMode(void) { return !_report_mode; }
 
     // Send Report to default connection
     bool inputReport(uint8_t reportID, void const* data, int len);
@@ -118,7 +103,7 @@ class BLEHidGeneric : public BLEService
 
     bool    _has_keyboard;
     bool    _has_mouse;
-    bool    _protocol_mode;
+    bool    _report_mode;
 
     uint8_t _hid_info[4];
     const uint8_t* _report_map;

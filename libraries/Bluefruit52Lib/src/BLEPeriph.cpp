@@ -78,6 +78,11 @@ uint8_t BLEPeriph::connected (void)
   return count;
 }
 
+void BLEPeriph::clearBonds(void)
+{
+  bond_clear_prph();
+}
+
 bool BLEPeriph::setConnInterval (uint16_t min, uint16_t max)
 {
   _ppcp.min_conn_interval = min;
@@ -121,6 +126,7 @@ void BLEPeriph::setDisconnectCallback( ble_disconnect_callback_t fp )
 void BLEPeriph::_eventHandler(ble_evt_t* evt)
 {
   uint16_t const conn_hdl = evt->evt.common_evt.conn_handle;
+  BLEConnection* conn = Bluefruit.Connection(conn_hdl);
 
   switch ( evt->header.evt_id  )
   {
@@ -128,14 +134,11 @@ void BLEPeriph::_eventHandler(ble_evt_t* evt)
     {
       ble_gap_evt_connected_t* para = &evt->evt.gap_evt.params.connected;
 
-      if (para->role == BLE_GAP_ROLE_PERIPH)
+      // Connection interval set by Central is out of preferred range
+      // Try to negotiate with Central using our preferred values
+      if ( !is_within(_ppcp.min_conn_interval, para->conn_params.min_conn_interval, _ppcp.max_conn_interval) )
       {
-        // Connection interval set by Central is out of preferred range
-        // Try to negotiate with Central using our preferred values
-        if ( !is_within(_ppcp.min_conn_interval, para->conn_params.min_conn_interval, _ppcp.max_conn_interval) )
-        {
-          VERIFY_STATUS( sd_ble_gap_conn_param_update(conn_hdl, &_ppcp), );
-        }
+        VERIFY_STATUS( sd_ble_gap_conn_param_update(conn_hdl, &_ppcp), );
       }
     }
     break;
@@ -151,14 +154,16 @@ void BLEPeriph::_eventHandler(ble_evt_t* evt)
 void BLEPeriph::printInfo(void)
 {
   char const * title_fmt = "%-16s: ";
+  // prepare for ability to change output, based on compile-time flags
+  Print& logger = Serial;
 
-  Serial.printf(title_fmt, "Conn Intervals");
-  Serial.printf("min = %.2f ms, ", _ppcp.min_conn_interval*1.25f);
-  Serial.printf("max = %.2f ms", _ppcp.max_conn_interval*1.25f);
-  Serial.println();
+  logger.printf(title_fmt, "Conn Intervals");
+  logger.printf("min = %.2f ms, ", _ppcp.min_conn_interval*1.25f);
+  logger.printf("max = %.2f ms", _ppcp.max_conn_interval*1.25f);
+  logger.println();
 
-  Serial.printf(title_fmt, "Conn Timeout");
-  Serial.printf("%.2f ms", _ppcp.conn_sup_timeout*10.0f);
-  Serial.println();
+  logger.printf(title_fmt, "Conn Timeout");
+  logger.printf("%d ms", _ppcp.conn_sup_timeout*10);
+  logger.println();
 }
 

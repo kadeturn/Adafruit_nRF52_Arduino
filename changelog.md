@@ -1,13 +1,290 @@
 # Adafruit nRF52 Arduino Core Changelog
 
-# 0.10.5
+## 0.22.0 - WIP
 
-- Fixed Feather nRF52840 Express's qspi driver to work with on-board flash device
-- Rework USB driver using Adafruit_TinyUSB library
+This version implement comprehensive LESC and Legacy pairing using dynamic & static Passkey.
+
+- Support static passkey (Legacy only)
+- Support LESC on nRF52840 using hardware-accelerated ARM CryptoCell CC310 provided by [Adafruit_nRFCypto](https://github.com/adafruit/Adafruit_nRFCrypto). The library is included as submodule and released together with the BSP.
+- Rework bonding mechanism to use IRK for peer finding. It is advisable to run `clearbonds` example to clean up bond files of previous version
+
+### BLESecurity
+
+A new class BLESecurity (access with Bluefruit.Security) is added to handle security and pairing.
+
+- **setPIN()** to set static passkey, this will force to use Legacy Pairing
+- **setIOCaps()** to congiure IO capacities
+- **setMITM()** to enable/disable Man in The Middle protection (passkey), it is auto-enabled when using passkey
+- **setPairPasskeyCallback()** to register callback for displaying pairing passkey to user
+- **setPairCompleteCallback()** to register callback for the result of pairing procedure (succeeded or failed)
+- **setSecuredCallback()** to register callback which invoked when connection is secured. This happens after he pairing procedure is complete, or we re-connect with preivously bonded peer device
+
+### Other Changes
+
+**BLECentral** 
+
+- will automatically use stored Long Term Key to secure connection if paired/bonded with device previously
+
+**Bluefruit**
+
+- Bluefruit::requestPairing() is removed, please use the BLEConnection::requestPairing() instead
+- Bluefruit::connPaired() is removed, please use BLEConnection::secure() instead
+- Default Device name is USB_PRODUCT if available e.g CLUE, Circuit Playground Bluefruit, Feather nRF52840 Express etc ...
+
+**BLEService**
+
+- Added setPermission()
+
+**BLEConnection**
+
+- BLEConnection::requestPairing() is now non-blocking, it will return right after sending request to peer device. Previously it is blocked until the pairing process is complete.
+- Added BLEConnection::secured() to check if the connection is secured/encrypted
+- Added BLEConnection::bonded() to check if we store Longterm Key with current peer
+- Removed BLEConnection:paried(), user should either use secured() or bonded() depending on the context
+- If bonded, getPeerAddr() will return peer public address instead of random address. 
+
+**New Example Sketches**
+
+- **pairing_pin** to use static PIN for peripheral role
+- **pairing_passkey** to use dyanmic Passkey for pairing. On Arcada compatible device such as `CLUE` or `Circuit Playground Bluefruit`, TFT display will also be used to display passkey.
+- **cental_pairing** similar to pairing_passkey but for nRF running central role
+- **ancs_arcada** for displaying ancs on arcada such CLUE and/or CPB.
+
+## 0.21.0 - 2020.08.31
+
+Special thanks to @henrygab, @pyro9, @Nenik, @orrmany, @thaanstad, @kevinfrei for contributing and helping with this release.
+
+- Reworked HardwarePWM, analogWrite, Servo, Tone to address PWM hardware conflict with ownership.
+- Reworked Tone to use no interrupt handler
+- Added multiprotocol support such as ANT with additional ANT_LICENSE_KEY (require 3rd party library)
+- Fixed pgm_read_ptr(addr) macro
+- Updated & enhanced TinyUSB performance, usb event, task switching is much faster
+- Fixed BLE Characteristic discovery when the central device returns more than 4 Characteristics in a discovery request
+- Enhanced micro() to use DWT cyclecount if enabled for higher precision
+- Fixed miscalculated tick when sleeping with delay()
+- Fixed FPU-caused power consumption issue
+- Added Wire.setPins()
+- Added resumeLoop()
+- Renamed I2C terminology
+- Support precompiled library with compiler.libraries.ldflags e.g BSEC BME680
+- Added Hardware/tone_happy_birthday example sketch
+
+## 0.20.5 - 2020.07.05
+
+- Updated toolchain from gcc 7-2017q4 to 9-2019q4
+- Fixed GPIOTE channel conflict between libraries
+- Added type-safe for arrcount() macros
+- Added truncate() and rename() to Internal Filesystem (LittleFS).
+- Update CMSIS from v4 to v5 to build with TensorFlow
+- Update TinyUSB core to commit 0749077
+
+Special thanks to @henrygab, @pyro9, @geeksville for contributing and helping with this release.
+
+## 0.20.1 - 2020.04.23
+
+- Update TinyUSB to commit c59fa77 due to a bug in the stack
+
+## 0.20.0 - 2020.04.21
+
+- Fixed Wire write ambiguous
+- Improved debugging with log and sysview, thanks to @henrygab
+- Fixed recipe to compute SRAM and ROM of sketch
+- Removed the force waiting Serial when debug is enabled
+- Updated nrfx to v2.1.0
+- Updated TinyUSB to commit 718db7e
+
+## 0.19.0 - 2020.03.12
+
+- Add BLECharacteristic::isFixedLen()
+- Enhance and add new Playground sensor services
+  - Quaternion
+  - Sound
+  - Color
+  - Proximity
+  - Gesture
+- Fix sporadic hangup when stopping notifies, thanks to @FariSoftware PR #444
+- Rename image_upload sketch to image_transfer
+- Update bluefruit_playground sketch to work with CPB, CLUE and Sense
+- Upgrade SystemView to v3.10, thanks to @henrygab PR #437
+- Fix D13 LED_BUILTIN for Feather Sense
+- Skip waiting for Serial in some examples, force wait for Serial when Debug is enabled
+- Update bootloader binary from 0.3.0 to 0.3.2
+
+## 0.18.5 - 2020.02.19
+
+- Add macro `SPI_32MHZ_INTERFACE` to variant to select SPI or SPI1 to use 32mhz SPIM3
+- Add PIN_BUZZER to variants with built-in speaker
+- Enhance Particle Xenon support, PR #435 thanks to @outlandnish and @jaswope
+- Rename cplay_ble.ino to bluefruit_playground.ino
+- Use USB_PRODUCT string for default bledis model
+- Increase attr table size for 840 to from 0xC00 to 0x1000
+- Add more Adafruit sensor service: Gyro, Magento, Humid, Baro
+- Upadte `image_upload.ino` to support CLUE with built-in TFT
+
+## 0.18.0 - 2020.02.03
+
+- Add EXTERNAL_FLASH_USE_QSPI to all variants that has on-board flash
+
+## 0.17.0 - 2020.02.01
+
+### Core
+
+- Add board support for Adafruit CLUE, Feather nRF52840 Sense
+- Add board support Raytac MDBT50Q_RX dongle, thanks to @pyro9 PR #328
+- Update bootloader binary to 0.3.0
+- Addd PIN_BUTTON for variants
+- Add SoftwareTimer getID/setID
+- Add **INPUT_PULLUP/DOWN_SENSE** mode, PR #427, thanks to @jpconstantineau
+- Support Serial event parity SERIAL_8E1, PR #369, thanks to @prjh
+- Support Serial2, migrate uart driver to UARTE, PR #315, thanks to @ogatatsu
+- Fix various bugs
+
+### BLE
+
+- Add **image_eink_upload8* example sketch
+- Add Nordic Led Button service example **nrf_blinky** sketch
+- Increase SD RAM for nRF52832
+- Fix Discovery bug, PR #413, thanks to @ogatatsu
+
+## 0.16.0 - 2020.01.10
+
+- Fix Little FileSystem (LFS) reentrance issue, by serialize access to lfs_* API(). Huge thanks to @hentrygab for spending lots of his time on PR #397
+- Fix SPIM transfer with length > 64 KB bytes
+- Fix #352 PDM issue
+- SchedulerRTOS::startLoop() support stack size and task priority parameters
+
+## 0.15.1 - 2019.12.31
+
+- Print::availableForWrite() return int instead of size_t
+- Migrate CI from travis to actions
+
+## 0.15.0 - 2019.12.30
+
+### Core
+
+- Add Clue variant
+- Clean up warnings, thanks to @henrygab
+- Enhance Software Timer
+
+### BLE
+ 
+- Increase sd attribute table size from 0x800 to 0xC00, increase linker memory for SD 840 from 3400 to 6000
+- Add Adafruit BLE Service library (used by Circuit Playground Bluefruit App): Temperature, Addressable Pixel, Accel, Button
+  - Add `cplay_ble.ino` example sketch
+- Change BLEUuid begin's return type to bool
+- BLECharacteristic allow user to set buffer
+
+### USB
+
+- Moved TinyUSB core into submodule at https://github.com/adafruit/Adafruit_TinyUSB_ArduinoCore
+- Added USBD detach/attach API
+- Synced TinyUSB with upstream
+
+## 0.14.6 - 2019.10.30
+
+- Added power switch pin for Circuit Playground Bluefruit
+- Make min/max templates
+
+## 0.14.5 - 2019.10.21
+
+- Added Itsy nRF52840 Express support
+- Replace legacy SPI by SPIM3 with maximum 32Mhz for nRF52840
+- Added support for 2nd I2C interface aka Wire1
+- Macro defines clean up
+  - remove ARDUINO_FEATHER52
+  - remove ARDUINO_NRF52_FEATHER use either ARDUINO_NRF52832_FEATHER or ARDUINO_NRF52840_FEATHER
+  - use ARDUINO_NRF52840_CIRCUITPLAY for Circuit Playground Bluefruit
+- ARDUINO_NRF52840_CIRCUITPLAY defined for circuit playground bluefruit
+- Updated nrfx module to 1.7.2
+- Fixed more warnings. better describe flash caching, PR #347 thanks to @henrygab
+- Improve tinyUSB thanks to @kaysievers
+  - Fixed warnings
+  - Allows configuration of power setting
+  - Allows to set USB Manufacturer/product ID
+  - Allow to set configuration descriptor buffer
+- Fixed missing bootloader binaries
+
+## 0.14.0 - 2019.09.27
+
+- Core
+  - Ada Callback task dynamically resize its queue size on demand. Also invoke function immediately if callback failed to allocate memory for deferring.
+  - Changde stack size for following task
+    - Task loop     : from 256*6 to 256*4
+    - Task Callback : from 256*4 to 256*3
+    - Task USBD     : from 150   to 200
+    - Task BLE      : from 256*6 to 256*5
+  - Added _sbkr() to handle heap overflowed
+- BLEUart
+  - Added setRxOverflowCallback()
+  - Added deferred option for setRxCallback()
+- Update `image_upload` example to work with both nRF52832 & nRF52840 with maximum throughput, also support 16 or 24-bit color
+- Update bootloader binary to to 0.2.13 version (upgrade is optional)
+- Enhance BLEDis with new characteristic : system id, reg cert list, pnp id. PR #336 Thanks to @elral
+- Fixed SPI definition for circuitplayground Bluefruit
+
+## 0.13.0 - 2019.08.22
+
+- Update bootloader binary to to 0.2.12 version (upgrade is optional)
+- Added Circuit Playground Blueffuit nRF52840 support
+- Added variant support for Particle Xenon, PR #317
+- Added PDM support
+- Switch compiler optimization from -Os to -Ofast
+- Improve BLEConnection throughput
+  - Added requestPHY() to initate PHY switching to 2 MB, 1MB
+  - Added requestDataLengthUpdate() to initate Data Length Update process
+  - Added requestMtuExchange() to iniate MTU exchange procoess
+  - Added requestConnectionParameter() to initate connection parameter process
+- Updated throughput and added central_throughput sketch (WIP)
+- Added image_upload example
+- Enhance mutex lock/unlock for fifo used by bleuart
+- Fixed multiples warning with tinyUSB descriptor template, PR #322
+- Fixed typo, PR #326
+
+## 0.12.0 - 2019.08.05
+
+- Update tinyusb core to support webUSB & vendor class
+- Added a couple delete operators to make std=gnu++14/17, PR #312 thanks to @kevinfrei
+- Fix Serial.read() return clean 8-bit, PR #308 thanks to @pyro9
+- Added availableForWrite(), PR #311 thanks to @pyro9
+
+## 0.11.1 - 2019.07.10
+
+- Update tinyusb core to support USB MIDI
+- Refactor Ada Callback, use ISCR to detect isr context. Use function instead of macro
+- Implement #240 run travis test with all example sketches
+- Fixed auto-start of advertising when central is connected, thanks to @ogatatsu PR #268
+- Added Tone()/noTone() functions
+- Travis-ci builds all sketches when commit code
+- Fixed setAppearance/getAppearance() typo, thanks to @paulmand3l PR #292
+- Fixed rssi_proximity_peripheral sketch, thanks to @dicobrazz PR #295
+- Fixed doc typo, thanks to @yvadher PR #296
+- Fixed HID usage code location comment in exmaple sketch, thanks to @stefandz PR #297
+- Fixed #277 conn LED doesn't stop when scanner is time out
+- Added connection handle to Bluefruit.connParied()
+
+## 0.11.0
+
+- Rework USB driver to support Adafruit_TinyUSB library (support HID and MSC)
 - Added Metro nRF52840 Express
 - Update bootloader binaries to 0.2.11
+- Rework Filesystem
+  - Seperate LittleFS and InternalFS into `Adafruit_LittleFS` and `InternalFileSystem`
+  - Remove ExternalFS in favor of using Adafruit_QSPI and Adafruit_SPIFlash library
+- Update nrfx to 1.6.2
+- Fixed #250 wrong values for g_ADigitalPinMap, thanks to @henrygab
+- Fixed interrupts for device with multiple I/O Port, thanks to MacGyverNL PR #261
+- Update adc_vbat.ino sketch to work with nrf52840, thanks to @pyro9
+- Extend SoftwareTimer with option to make it non-repeating, add reset function & ISR-safe functions, thanks to @MacGyverNL PR #260
+- Fixed connection handle in BLEHidAdafruit single connection api, thanks to @ogatatsu PR #267
+- Fixed spelling & Add Environmental Sensing GATT Service and UV Index GATT Characteristics UUID, thanks to @sayanee
+- Fixed #276 rename macro FILE_READ/WRITE to enum FILE_O_READ/WRITE
+- Upgrade compiler toolchain from gcc 5.2 2015q2 to gcc 7 2017q4
+- Rename hid client setProtocolMode() to setBootMode()
+- Removed `rtos_idle_callback()`, sketch define vApplicationIdleHook() if needed
+- enhance Serial.available()/write() to prevent blocking wait without yield/delay
+- Clean up compiler warnings
 
-# 0.10.1
+## 0.10.1
 
 This release added multiple concurrent peripheral connections support, allow Bluefruit device to multiple central (phones/PC) simultaneously. It introduces new BLE class: BLEPeriph, BLEConnection, remove BLEGap, refactor/rename/move functions and callbacks.     
 
@@ -50,7 +327,7 @@ This release added multiple concurrent peripheral connections support, allow Blu
   - Removed keyboardReport() variant with flat keycode parameters
   - Added conn_handle parameter to keyboard led callback
 
-# 0.9.3
+## 0.9.3
 
 - Correct bootloader version text in IDE to 0.2.6
 - Fixed #173 bleuart return incorrect value when failed to send (PR #178 thanks Nenik)

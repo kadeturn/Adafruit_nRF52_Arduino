@@ -50,9 +50,11 @@ void BLECharacteristic::_init(void)
   varclr(&_properties);
 
   varclr(&_attr_meta);
-  _attr_meta.read_perm = _attr_meta.write_perm = BLE_SECMODE_OPEN;
+  _attr_meta.read_perm = BLE_SECMODE_OPEN;
+  _attr_meta.write_perm = BLE_SECMODE_OPEN;
   _attr_meta.vlen = 1;
   _attr_meta.vloc = BLE_GATTS_VLOC_STACK;
+  _userbuf = NULL;
 
   _handles.value_handle     = BLE_GATT_HANDLE_INVALID;
   _handles.user_desc_handle = BLE_GATT_HANDLE_INVALID;
@@ -121,6 +123,16 @@ void BLECharacteristic::setMaxLen(uint16_t max_len)
   _max_len = max_len;
 }
 
+uint16_t BLECharacteristic::getMaxLen(void)
+{
+  return _max_len;
+}
+
+bool BLECharacteristic::isFixedLen(void)
+{
+  return _attr_meta.vlen == 0;
+}
+
 void BLECharacteristic::setFixedLen(uint16_t fixed_len)
 {
   if ( fixed_len )
@@ -133,7 +145,15 @@ void BLECharacteristic::setFixedLen(uint16_t fixed_len)
   }
 }
 
-void BLECharacteristic::setPermission(BleSecurityMode read_perm, BleSecurityMode write_perm)
+// Use application buffer instead of SD stack buffer
+void BLECharacteristic::setBuffer(void* buf, uint16_t bufsize)
+{
+  _max_len = bufsize;
+  _userbuf = (uint8_t*) buf;
+  _attr_meta.vloc = buf ? BLE_GATTS_VLOC_USER : BLE_GATTS_VLOC_STACK;
+}
+
+void BLECharacteristic::setPermission(SecureMode_t read_perm, SecureMode_t write_perm)
 {
   memcpy(&_attr_meta.read_perm , &read_perm, 1);
   memcpy(&_attr_meta.write_perm, &write_perm, 1);
@@ -198,15 +218,19 @@ ble_gatts_char_handles_t BLECharacteristic::handles(void)
   return _handles;
 }
 
+// return the higher security mode
+static inline ble_gap_conn_sec_mode_t max_secmode(ble_gap_conn_sec_mode_t sm1, ble_gap_conn_sec_mode_t sm2)
+{
+  if ( (sm1.sm > sm2.sm) || (sm1.sm == sm2.sm && sm1.lv > sm2.lv) ) return sm1;
+  return sm2;
+}
+
 err_t BLECharacteristic::begin(void)
 {
   _service = BLEService::lastService;
 
   // Add UUID128 if needed
-  (void) uuid.begin();
-
-  // Permission is OPEN if passkey is disabled.
-//  if (!nvm_data.core.passkey_enable) BLE_GAP_CONN_SEC_MODE_SET_OPEN(&p_char_def->permission);
+  uuid.begin();
 
   // Correct Read/Write permission according to properties
   if ( !(_properties.read || _properties.notify || _properties.indicate ) )
@@ -217,6 +241,25 @@ err_t BLECharacteristic::begin(void)
   if ( !(_properties.write || _properties.write_wo_resp ) )
   {
     _attr_meta.write_perm = BLE_SECMODE_NO_ACCESS;
+  }
+
+  // Correct Read/Write permission according to parent service
+  // Use service permission if it has higher secure mode
+  SecureMode_t svc_rd_secmode, svc_wr_secmod;
+  _service->getPermission(&svc_rd_secmode, &svc_wr_secmod);
+
+  ble_gap_conn_sec_mode_t svc_rd_perm, svc_wr_perm;
+  memcpy(&svc_rd_perm, &svc_rd_secmode, 1);
+  memcpy(&svc_wr_perm, &svc_wr_secmod , 1);
+
+  if ( _attr_meta.read_perm.sm != 0 ) // skip no access
+  {
+    _attr_meta.read_perm = max_secmode(_attr_meta.read_perm, svc_rd_perm);
+  }
+
+  if ( _attr_meta.write_perm.sm != 0 ) // skip no access
+  {
+    _attr_meta.write_perm = max_secmode(_attr_meta.write_perm, svc_wr_perm);
   }
 
   /* CCCD attribute metadata */
@@ -270,7 +313,7 @@ err_t BLECharacteristic::begin(void)
     .init_len  = (_attr_meta.vlen == 1) ? (uint16_t) 0 : _max_len,
     .init_offs = 0,
     .max_len   = _max_len,
-    .p_value   = NULL
+    .p_value   = _userbuf
   };
 
   VERIFY_STATUS( sd_ble_gatts_characteristic_add(BLE_GATT_HANDLE_INVALID, &char_md, &attr_char_value, &_handles) );
@@ -313,7 +356,7 @@ err_t BLECharacteristic::begin(void)
   return ERROR_NONE;
 }
 
-err_t BLECharacteristic::addDescriptor(BLEUuid bleuuid, void const * content, uint16_t len, BleSecurityMode read_perm, BleSecurityMode write_perm)
+err_t BLECharacteristic::addDescriptor(BLEUuid bleuuid, void const * content, uint16_t len, SecureMode_t read_perm, SecureMode_t write_perm)
 {
   // Meta Data
   ble_gatts_attr_md_t meta;
@@ -361,11 +404,8 @@ void BLECharacteristic::_eventHandler(ble_evt_t* event)
       {
         ble_gatts_evt_read_t * rd_req = &request->request.read;
 
-        if ( _use_ada_cb.read_authorize )
-        {
-          ada_callback(rd_req, sizeof(*rd_req), _rd_authorize_cb, conn_hdl, this, rd_req);
-        }
-        else
+        if ( !(_use_ada_cb.read_authorize &&
+               ada_callback(rd_req, sizeof(*rd_req), _rd_authorize_cb, conn_hdl, this, rd_req)) )
         {
           _rd_authorize_cb(conn_hdl, this, rd_req);
         }
@@ -382,10 +422,8 @@ void BLECharacteristic::_eventHandler(ble_evt_t* event)
             // Write Request with authorization
             if (_wr_authorize_cb != NULL)
             {
-              if ( _use_ada_cb.write_authorize )
-              {
-                ada_callback(wr_req, sizeof(*wr_req), _wr_authorize_cb, conn_hdl, this, wr_req);
-              }else
+              if ( !(_use_ada_cb.write_authorize &&
+                     ada_callback(wr_req, sizeof(*wr_req), _wr_authorize_cb, conn_hdl, this, wr_req)) )
               {
                 _wr_authorize_cb(conn_hdl, this, wr_req);
               }
@@ -435,13 +473,12 @@ void BLECharacteristic::_eventHandler(ble_evt_t* event)
 
               sd_ble_gatts_rw_authorize_reply(conn_hdl, &reply);
 
-              // Long write complete, call write callback if set
               if (_wr_cb)
               {
-                if (_use_ada_cb.write)
-                {
-                  ada_callback(_long_wr.buffer, _long_wr.count, _wr_cb, conn_hdl, this, _long_wr.buffer, _long_wr.count);
-                }else
+                // Long write complete, call write callback if set
+                // If using ada callback but failed --> invoke callback immediately
+                if ( !(_use_ada_cb.write &&
+                       ada_callback(_long_wr.buffer, _long_wr.count, _wr_cb, conn_hdl, this, _long_wr.buffer, _long_wr.count)) )
                 {
                   _wr_cb(conn_hdl, this, _long_wr.buffer, _long_wr.count);
                 }
@@ -468,19 +505,16 @@ void BLECharacteristic::_eventHandler(ble_evt_t* event)
     {
       ble_gatts_evt_write_t* request = &event->evt.gatts_evt.params.write;
 
-      LOG_LV2_BUFFER(NULL, request->data, request->len);
-
       // Value write
       if (request->handle == _handles.value_handle)
       {
-        LOG_LV2("GATTS", "attr's value, uuid = 0x%04X", request->uuid.uuid);
+        LOG_LV2("GATTS", "attr's value, uuid = 0x%04X, len = %d", request->uuid.uuid, request->len);
+        LOG_LV2_BUFFER(NULL, request->data, request->len);
 
         if (_wr_cb)
         {
-          if (_use_ada_cb.write)
-          {
-            ada_callback(request->data, request->len, _wr_cb, conn_hdl, this, request->data, request->len);
-          }else
+          if ( !(_use_ada_cb.write &&
+                 ada_callback(request->data, request->len, _wr_cb, conn_hdl, this, request->data, request->len)) )
           {
             _wr_cb(conn_hdl, this, request->data, request->len);
           }
@@ -490,18 +524,15 @@ void BLECharacteristic::_eventHandler(ble_evt_t* event)
       // CCCD write
       if ( request->handle == _handles.cccd_handle )
       {
-        LOG_LV2("GATTS", "attr's cccd");
+        uint16_t value;
+        memcpy(&value, request->data, 2);
+
+        LOG_LV1("GATTS", "attr's cccd = 0x%04X", value);
 
         if (_cccd_wr_cb)
         {
-          uint16_t value;
-          memcpy(&value, request->data, 2);
-
-          if ( _use_ada_cb.cccd_write )
-          {
-            ada_callback(NULL, 0, _cccd_wr_cb, conn_hdl, this, value);
-          }
-          else
+          if ( !(_use_ada_cb.cccd_write &&
+                 ada_callback(NULL, 0, _cccd_wr_cb, conn_hdl, this, value)) )
           {
             _cccd_wr_cb(conn_hdl, this, value);
           }
@@ -675,7 +706,12 @@ bool BLECharacteristic::notify(uint16_t conn_hdl, const void* data, uint16_t len
       };
 
       LOG_LV2("CHR", "Notify %d bytes", packet_len);
-      VERIFY_STATUS( sd_ble_gatts_hvx(conn_hdl, &hvx_params), false );
+      uint32_t status = sd_ble_gatts_hvx(conn_hdl, &hvx_params);
+      if(NRF_SUCCESS != status)
+      {
+        conn->releaseHvnPacket();
+      }
+      VERIFY_STATUS(status, false );
 
       remaining -= packet_len;
       u8data    += packet_len;
@@ -712,7 +748,7 @@ bool BLECharacteristic::notify32(uint16_t conn_hdl, uint32_t num)
 
 bool BLECharacteristic::notify32(uint16_t conn_hdl, int num)
 {
-  return notify32((uint32_t) num, conn_hdl);
+  return notify(conn_hdl, (uint8_t*) &num, sizeof(num));
 }
 
 //--------------------------------------------------------------------+

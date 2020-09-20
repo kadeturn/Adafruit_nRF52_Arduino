@@ -12,6 +12,8 @@
  any redistribution
 *********************************************************************/
 #include <bluefruit.h>
+#include <Adafruit_LittleFS.h>
+#include <InternalFileSystem.h>
 
 // BLE Service
 BLEDfu  bledfu;  // OTA DFU service
@@ -22,13 +24,17 @@ BLEBas  blebas;  // battery
 void setup()
 {
   Serial.begin(115200);
-  while ( !Serial ) delay(10);   // for nrf52840 with native usb
+
+#if CFG_DEBUG
+  // Blocking wait for connection when debug mode is enabled via IDE
+  while ( !Serial ) yield();
+#endif
   
   Serial.println("Bluefruit52 BLEUART Example");
   Serial.println("---------------------------\n");
 
   // Setup the BLE LED to be enabled on CONNECT
-  // Note: This is actually the default behaviour, but provided
+  // Note: This is actually the default behavior, but provided
   // here in case you want to control this LED manually via PIN 19
   Bluefruit.autoConnLed(true);
 
@@ -140,5 +146,5 @@ void disconnect_callback(uint16_t conn_handle, uint8_t reason)
   (void) reason;
 
   Serial.println();
-  Serial.println("Disconnected");
+  Serial.print("Disconnected, reason = 0x"); Serial.println(reason, HEX);
 }
