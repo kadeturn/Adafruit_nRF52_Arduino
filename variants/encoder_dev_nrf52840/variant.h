@@ -79,8 +79,8 @@ static const uint8_t A3  = PIN_A3 ;
  * Serial interfaces
  */
 // Serial
-#define PIN_SERIAL1_RX       (21)
-#define PIN_SERIAL1_TX       (20)
+#define PIN_SERIAL1_RX       (3)
+#define PIN_SERIAL1_TX       (4)
 
 /*
  * SPI Interfaces
